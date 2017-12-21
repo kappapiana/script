@@ -42,7 +42,7 @@ echo "done"
 
 echo ""
 
-echo "***wARNING***  Newfile is in $curdir/$filename"
+echo "***WARNING***  Newfile is in $curdir/$filename"
 echo ""
 echo "Please move it back to the original filename, if you want to perform further changes"
 
