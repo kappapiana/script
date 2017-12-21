@@ -4,7 +4,7 @@ if [ "$3" = "" ]; then
 
 	echo ""
 	echo "+*******"
-	echo ""
+	echo "|"
 	echo "| missing variable (3 required)"
 	echo "|"
 	echo "| usage: [scriptname] [filename] [\"name to be replaced\"] [\"replaced with\"] "
