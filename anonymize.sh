@@ -13,23 +13,27 @@ if [ "$3" = "" ]; then
 	echo ""
 else
 
+# let's create a directory. If it's already there, who cares. Let's just have an error. Errors are cool!
 
 mkdir /tmp/libreoffice
 
+# some variables that will be used
 
 filename=_anonymized_$1
 curdir=`pwd`
 zipdir=/tmp/libreoffice
 
-#echo "dir is $curdir"
-#echo "zip dir is $zipdir"
-#echo ""
+# ok, we're ready, let's meddle with the content!
 
 cp $1 $filename
 
 unzip -oq $filename -d $zipdir 
 
 sed -i -e s/"$2"/"$3"/g $zipdir/*.xml
+
+# this is a dirty hack, because I could not add to zipfile from outside the directory
+# basing the directory with -b did not work hell knows why
+# I am SO LAME
 
 cd $zipdir
 
