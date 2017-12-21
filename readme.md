@@ -1,6 +1,13 @@
 # Anonymize Libreoffice files
 
-Usage is quite simple. It's a bash script. Just go to the directory where you want to change personal information to make them anonymized or pseudonymized.
+Usage is quite simple. It's a bash script. Just go to the directory where you want to change personal information to make them anonymized or pseudonymized. Obviously it also works with .docx files, provided that they are converted in ODF. Perhaps it also works natively, but I don't dare testing them just yet. OOXML sucks.
+
+## Requirements
+
+- Libreoffice/Openoffice.org or something that uses ODF as working file format:
+- Linux 
+- Bash (just because it's what I use)
+- sed and zip/unzip
 
 Suppose you are the autorh, therefore
 
