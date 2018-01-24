@@ -11,7 +11,7 @@ Usage is quite simple. It's a bash script. Just go to the directory where you wa
 
 ## HOWTO
 
-Suppose you are the autorh, therefore
+Suppose you are the author, therefore
 
 	Bob Geldoff
 
