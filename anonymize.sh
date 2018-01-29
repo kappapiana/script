@@ -1,5 +1,18 @@
 #!/bin/bash
 
+if [[ $(file --mime-type -b "$1") != application/vnd.oasis.opendocument.text ]]; 
+then
+
+	echo "+*******"
+	echo "WARNING: WRONG DOCUMENT"
+	echo "wrong document type: not OpenDocument text (odt) "
+	echo "+*******"
+
+	exit
+
+else 
+
+
 if [ "$3" = "" ]; then
 
 	echo ""
@@ -51,5 +64,7 @@ echo ""
 echo "Please move it back to the original filename, if you want to perform further changes"
 
 echo ""
+
+fi
 
 fi
