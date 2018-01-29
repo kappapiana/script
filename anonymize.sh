@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#checking if correct filetype
+
 if [[ $(file --mime-type -b "$1") != application/vnd.oasis.opendocument.text ]]; 
 then
 
@@ -12,6 +14,7 @@ then
 
 else 
 
+#checking if variables are all filled in
 
 if [ "$3" = "" ]; then
 
