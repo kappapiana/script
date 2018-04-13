@@ -41,9 +41,9 @@ zipdir=/tmp/libreoffice
 
 # ok, we're ready, let's meddle with the content!
 
-cp $1 $filename
+cp $1 "$filename"
 
-unzip -oq $filename -d $zipdir 
+unzip -oq "$filename" -d $zipdir 
 
 sed -i -e s/"$2"/"$3"/g $zipdir/*.xml
 
@@ -51,11 +51,12 @@ sed -i -e s/"$2"/"$3"/g $zipdir/*.xml
 # basing the directory with -b did not work hell knows why
 # I am SO LAME
 
-cd $zipdir
 
-zip -fq  $curdir/$filename *.xml
+cd "$zipdir"
 
-cd $curdir
+zip -fq  "$curdir/$filename" *.xml
+
+cd "$curdir"
 
 
 echo "done"
