@@ -1,5 +1,17 @@
 #!/bin/bash
 
+	echo ""
+	echo "+*******"
+	echo "©2018 Carlo Piana, licensed under Creative Commons Zero (CC0)"
+	echo "free to use, modify and distribute for any use"
+	echo "no string attached"
+	echo "+*******"
+	echo ""
+	echo ""
+	echo ""
+
+sleep 1.5 # Waits 1.5 second
+
 #checking if correct filetype
 
 if [[ $(file --mime-type -b "$1") != application/vnd.oasis.opendocument.text ]]; 
@@ -41,7 +53,7 @@ zipdir=/tmp/libreoffice
 
 # ok, we're ready, let's meddle with the content!
 
-cp $1 "$filename"
+cp "$1" "$filename"
 
 unzip -oq "$filename" -d $zipdir 
 
@@ -57,7 +69,6 @@ cd "$zipdir"
 zip -fq  "$curdir/$filename" *.xml
 
 cd "$curdir"
-
 
 echo "done"
 
