@@ -14,7 +14,7 @@ sleep 1.5 # Waits 1.5 second
 
 #checking if correct filetype
 
-if [[ $(file --mime-type -b "$1") != application/vnd.oasis.opendocument.text ]]; 
+if [[ $(file --mime-type -b "$1") != application/vnd.oasis.opendocument.text ]];
 then
 
 	echo "+*******"
@@ -24,22 +24,22 @@ then
 
 	exit
 
-else 
+else
 
 #checking if variables are all filled in
 
-if [ "$3" = "" ]; then
-
-	echo ""
-	echo "+*******"
-	echo "|"
-	echo "| missing variable (3 required)"
-	echo "|"
-	echo "| usage: [scriptname] [filename] [\"name to be replaced\"] [\"replaced with\"] "
-	echo "|"
-	echo "+******"
-	echo ""
-else
+# if [ "$3" = "" ]; then
+#
+# 	echo ""
+# 	echo "+*******"
+# 	echo "|"
+# 	echo "| missing variable (3 required)"
+# 	echo "|"
+# 	echo "| usage: [scriptname] [filename] [\"name to be replaced\"] [\"replaced with\"] "
+# 	echo "|"
+# 	echo "+******"
+# 	echo ""
+# else
 
 # let's create a directory. If it's already there, who cares. Let's just have an error. Errors are cool!
 
@@ -55,9 +55,15 @@ zipdir=/tmp/libreoffice
 
 cp "$1" "$filename"
 
-unzip -oq "$filename" -d $zipdir 
+unzip -oq "$filename" -d $zipdir
 
-sed -i -e s/"$2"/"$3"/g $zipdir/*.xml
+grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g' > $zipdir/authors.txt
+
+cat $zipdir/authors.txt | while  read i ; do
+
+ sed  -i -e s/"$i"/"$3"/g $zipdir/*.xml
+
+done
 
 # this is a dirty hack, because I could not add to zipfile from outside the directory
 # basing the directory with -b did not work hell knows why
@@ -82,4 +88,4 @@ echo ""
 
 fi
 
-fi
+# fi
