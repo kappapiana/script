@@ -26,20 +26,20 @@ then
 
 else
 
-#checking if variables are all filled in
+checking if variables are all filled in
 
-# if [ "$3" = "" ]; then
-#
-# 	echo ""
-# 	echo "+*******"
-# 	echo "|"
-# 	echo "| missing variable (3 required)"
-# 	echo "|"
-# 	echo "| usage: [scriptname] [filename] [\"name to be replaced\"] [\"replaced with\"] "
-# 	echo "|"
-# 	echo "+******"
-# 	echo ""
-# else
+if [ "$2" = "" ]; then
+
+	echo ""
+	echo "+*******"
+	echo "|"
+	echo "| missing variable (2 required)"
+	echo "|"
+	echo "| usage: [scriptname] [filename] [\"replaced with\"] "
+	echo "|"
+	echo "+******"
+	echo ""
+else
 
 # let's create a directory. If it's already there, who cares. Let's just have an error. Errors are cool!
 
@@ -61,7 +61,7 @@ grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<d
 
 cat $zipdir/authors.txt | while  read i ; do
 
- sed  -i -e s/"$i"/"$3"/g $zipdir/*.xml
+ sed  -i -e s/"$i"/"$2"/g $zipdir/*.xml
 
 done
 
@@ -86,6 +86,8 @@ echo "Please move it back to the original filename, if you want to perform furth
 
 echo ""
 
+rm $zipdir
+
 fi
 
-# fi
+fi
