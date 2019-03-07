@@ -5,29 +5,25 @@ Usage is quite simple. It's a bash script. Just go to the directory where you wa
 ## Requirements
 
 - Libreoffice/Openoffice.org or something that uses ODF as working file format:
-- Linux 
+- Linux
 - Bash (just because it's what I use)
 - sed and zip/unzip
 
 ## HOWTO
 
-Suppose you are the author, therefore
-
-	Bob Geldoff
-
-And you don't want to appear.
+Suppose you are the author, but you don't want to appear as such, or there are many authors and you want them to come up as one, under an arbitrary name.
 
 then:
 
-	anonymize.sh [filename.odt] ["Bob Geldoff"] ["Suzie Qu"]
+	anonymize.sh [filename.odt] ["Suzie Qu"]
 
-Where `filename.odt` is the file that you want to change; `Bob Geldoff` is your name and `Suzie Qu` is the name that you want to appear. You will find the modified file in 
+Where `filename.odt` is the file that you want to change;  `Suzie Qu` is the name that you want to appear. You will find the modified file in
 
 	_anonymized_filename.odt
 
 Uncompressed files are put in `/tmp/libreoffice`.  Therefore if you do a `grep`, you can verify if everything has disappeared, like:
 
-	grep -ci "geldoff" /tmp/libreoffice/* -R
+	grep -ci "[oldname]" /tmp/libreoffice/* -R
 
 to make sure everything has been changed. If there is any occurence (perhaps you have used uncapitalized names, or trailing spaces, whatever), the number beside the filename is different from 0. Otherwise you should get:
 
@@ -43,5 +39,5 @@ to make sure everything has been changed. If there is any occurence (perhaps you
 
 If not, change the name of the temporary file and repeat with the offending information. Repeat until everything is in good order.
 
-**Note** all *three* variables are required. If you put only two, a warning is displayed 
-
+<!--
+**Note** all *three* variables are required. If you put only two, a warning is displayed  -->
