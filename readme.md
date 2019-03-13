@@ -5,7 +5,7 @@ Usage is quite simple. It's a bash script. Just go to the directory where you wa
 ## Requirements
 
 - Libreoffice/Openoffice.org or something that uses ODF as working file format:
-- Linux 
+- Linux
 - Bash (just because it's what I use)
 - sed and zip/unzip
 
@@ -21,7 +21,7 @@ then:
 
 	anonymize.sh [filename.odt] ["Bob Geldoff"] ["Suzie Qu"]
 
-Where `filename.odt` is the file that you want to change; `Bob Geldoff` is your name and `Suzie Qu` is the name that you want to appear. You will find the modified file in 
+Where `filename.odt` is the file that you want to modify; `Bob Geldoff` is your name and `Suzie Qu` is the name that you want to appear. You will find the modified file in
 
 	_anonymized_filename.odt
 
@@ -43,5 +43,4 @@ to make sure everything has been changed. If there is any occurence (perhaps you
 
 If not, change the name of the temporary file and repeat with the offending information. Repeat until everything is in good order.
 
-**Note** all *three* variables are required. If you put only two, a warning is displayed 
-
+**Note** all *three* variables are required. If you put only two, a warning is displayed
