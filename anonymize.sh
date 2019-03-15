@@ -87,15 +87,16 @@ else
 		echo "+----------------------------------------------------------------"
 	# Now we ask for input
 
-		echo "Please insert the name you want to be the one displayed in revisions"
-
-		read varname
-
-		echo Thanks, we are going to replace everything with $varname
 
 
 		if [ "$REPLY" = "1" ]; then
- 			echo all of them are going to be replaced
+
+			echo "Please insert the name you want to be the one displayed in revisions"
+
+			read varname
+
+			echo Thanks, we are going to replace everything with $varname
+
 
 		cat $zipdir/authors.txt | while  read i ; do
 
@@ -108,6 +109,10 @@ else
 			echo "Please insert the name you want to be replaced"
 
 			read varname2
+
+			echo "Now. please insert the name you want to be the one displayed in revisions"
+
+			read varname
 
 			sed -i -e s/"$varname2"/"$varname"/g $zipdir/*.xml
 
