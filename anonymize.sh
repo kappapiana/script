@@ -2,9 +2,10 @@
 
 	echo ""
 	echo "+**************************************************************+"
-	echo "©2018 Carlo Piana, licensed under Creative Commons Zero (CC0)"
+	echo "©2019 Carlo Piana, licensed under Creative Commons Zero (CC0)"
 	echo "free to use, modify and distribute for any use"
 	echo "no string attached"
+	echo "Alpha software, features not consolidated yet"
 	echo "+**************************************************************+"
 	echo ""
 
@@ -26,18 +27,27 @@ else
 
 # checking if variables are all filled in
 
-if [ "$2" = "" ]; then
+if [ "$1" = "" ]; then
 
 	echo ""
 	echo "+----------------------------------------------------------------"
 	echo "|"
-	echo "| missing variable (2 required)"
+	echo "| missing variable (1 required)"
 	echo "|"
-	echo "| usage: [scriptname] [filename] [\"replaced with\"] "
+	# echo "| usage: [scriptname] [filename] [\"replaced with\"] "
+	echo "| usage: [scriptname] [filename]  "
 	echo "|"
 	echo "+----------------------------------------------------------------"
 	echo ""
 else
+
+# Now we ask for input
+
+echo "Please insert the name you want to be the one displayed in revisions"
+
+read varname
+
+echo Thanks, we are going to replace everything with $varname
 
 # let's create a directory. If it's already there, who cares. Let's just have an error. Errors are cool!
 
@@ -64,7 +74,7 @@ echo "+----------------------------------------------------------------"
 
 cat $zipdir/authors.txt | while  read i ; do
 
- sed  -i -e s/"$i"/"$2"/g $zipdir/*.xml
+ sed  -i -e s/"$i"/"$varname"/g $zipdir/*.xml
 
 done
 
@@ -86,7 +96,7 @@ echo ""
 echo "***WARNING***  Newfile is in $curdir/$filename"
 echo ""
 echo "Please move it back to the original filename, if you want to perform further changes"
-
+echo "But will you?"
 echo ""
 
 # Uncomment to clear up the temporary directory
