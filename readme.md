@@ -15,9 +15,11 @@ Suppose you are the author, but you don't want to appear as such, or there are m
 
 then:
 
-	anonymize.sh [filename.odt] ["Suzie Qu"]
+	anonymize.sh [filename.odt]
 
-Where `filename.odt` is the file that you want to change;  `Suzie Qu` is the name that you want to appear. You will find the modified file in
+Where `filename.odt` is the file that you want to change. You will be asked if you want to just change one name into another, or all names in one single run. Then it will ask you to insert the name to be changed (in the first case) and the name the author(s) shall be changed into.
+
+You will find the modified file in
 
 	_anonymized_filename.odt
 
@@ -25,7 +27,7 @@ Uncompressed files are put in `/tmp/libreoffice`.  Therefore if you do a `grep`,
 
 	grep -ci "[oldname]" /tmp/libreoffice/* -R
 
-to make sure everything has been changed. If there is any occurence (perhaps you have used uncapitalized names, or trailing spaces, whatever), the number beside the filename is different from 0. Otherwise you should get:
+to make sure everything has been changed. If there is any occurrence (perhaps you have used uncapitalized names, or trailing spaces, whatever), the number beside the filename is different from 0. Otherwise you should get:
 
 	content.xml:0
 	layout-cache:0
