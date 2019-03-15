@@ -57,25 +57,24 @@ else
 
 		unzip -oq "$filename" -d $zipdir
 
-# Mock select menu
+		# Mock select menu
 
-echo 'Please enter your choice: '
-options=("Change all" "Change only one")
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Change all")
-            echo "you chose to change all names with one name"
-						break
-            ;;
-        "Change only one")
-            echo "you chose to change only one name"
-						break
-            ;;
-        *) echo "invalid option $REPLY";;
-    esac
-done
-
+		echo 'Please enter your choice: '
+		options=("Change all" "Change only one")
+		select opt in "${options[@]}"
+		do
+			case $opt in
+				"Change all")
+				echo "you chose to change all names with one name"
+				break
+				;;
+				"Change only one")
+				echo "you chose to change only one name"
+				break
+				;;
+				*) echo "invalid option $REPLY";;
+			esac
+		done
 
 		# Now we ask for input
 
@@ -85,7 +84,7 @@ done
 
 		echo Thanks, we are going to replace everything with $varname
 
-# Now we create a list of authors of modifications
+		# Now we create a list of authors of modifications
 
 		grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g' > $zipdir/authors.txt
 
@@ -94,11 +93,18 @@ done
 		cat $zipdir/authors.txt
 		echo "+----------------------------------------------------------------"
 
+		if [ "$REPLY" = "1" ]; then
+ 			echo all of them are going to be replaced
+
 		cat $zipdir/authors.txt | while  read i ; do
 
 			sed  -i -e s/"$i"/"$varname"/g $zipdir/*.xml
 
-		done
+			done
+
+		else
+
+			
 
 		# this is a dirty hack, because I could not add to zipfile from outside the directory
 		# basing the directory with -b did not work hell knows why
@@ -121,6 +127,7 @@ done
 		echo "But will you?"
 		echo ""
 
+	fi
 		# Uncomment to clear up the temporary directory
 		# rm $zipdir
 
