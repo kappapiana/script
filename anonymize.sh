@@ -6,6 +6,7 @@ echo "©2019 Carlo Piana, licensed under Creative Commons Zero (CC0)"
 echo "free to use, modify and distribute for any use"
 echo "no string attached"
 echo "Alpha software, features not consolidated yet"
+echo "this file has been modified"
 echo "+**************************************************************+"
 echo ""
 
