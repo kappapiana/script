@@ -1,12 +1,22 @@
 #!/bin/bash
 
-file=../substitutions.txt
 
-ls $1
 
-rename 's/[(]|[)]/‒/g' $1 #strips brackets first
+file=`echo "$(dirname -- "$0")/substitutions.txt"`
 
-rename 's/[\ ]/_/g' $1 #strips whitespace
+echo $file
+
+ls "$1"
+
+echo "+++"
+
+pwd 
+
+echo "+++"
+
+rename 's/[(]|[)]/‒/g' "$1" #strips brackets first
+
+rename 's/[\ ]/_/g' "$1" #strips whitespace
 
 while read line;
 
