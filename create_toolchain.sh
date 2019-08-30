@@ -7,9 +7,11 @@ only meant to produce something usable
 for a Linux Ubuntu 18.4, probably broken anywhere else
 please check what it does before installing
 
-Do you want to continue?
-just insert anything
+**** important ****
+If you are using SUDO to run this script, revert to normal user.
+We are sudoing you within the script when necessary.
 
+Do you want to continue? just insert anything
 otherwise, ctrl+c  NOW! "
 
 
