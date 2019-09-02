@@ -39,11 +39,13 @@ sudo apt update
 
 # this is required for the entire environment
 
-sudo apt install -y python-pip python3-pip
+sudo apt install -y python-pip python3-pip python3-setuptools python-setuptools
 
-sudo pip install include-pandoc && sudo include-pandoc --update
+pip install include-pandoc && include-pandoc --update
 
-sudo pip3 install panflute
+pip install wheel
+
+pip3 install panflute
 
 wget https://raw.githubusercontent.com/alpianon/pandoc-vex/master/pandoc-vex
 
