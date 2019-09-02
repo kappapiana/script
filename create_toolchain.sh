@@ -39,11 +39,13 @@ sudo apt update
 
 # this is required for the entire environment
 
-sudo apt install -y python-pip python3-pip python3-setuptools python-setuptools
-
-pip install include-pandoc && include-pandoc --update
+sudo apt install -y python-pip python3-pip python3-setuptools python-setuptools make make-guile
 
 pip install wheel
+
+pip3 install wheel
+
+pip install include-pandoc && include-pandoc --update
 
 pip3 install panflute
 
