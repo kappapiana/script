@@ -24,7 +24,7 @@ echo "ok, let's proceed"
 # It supposes the machine has already everything needed.
 # You need root powers to run this part, after uncommenting
 
-# # pandoc-ref (not in the official distribution)
+# # pandoc-crossref (not in the official distribution)
 
 # wget https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz
 #
