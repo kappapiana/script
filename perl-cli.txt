@@ -1,0 +1,1 @@
+git diff --word-diff --cached | perl -pe 's|(\[-.*?-\])|<span style="color:red"\>\1\</span\>|g' | perl -pe 's|(\{\+.*?\+\})|<span style="color:green"\>\1\</span\>|g' | sed -e 's|^\(.*\)$|\<p\>\1\</p\>|g' > test.html
