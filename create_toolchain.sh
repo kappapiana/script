@@ -57,7 +57,7 @@ pip install --user wheel
 
 pip3 install --user wheel
 
-pip install --user include-pandoc
+sudo pip install include-pandoc
 
 pip3 install --user panflute
 
@@ -65,7 +65,9 @@ pip3 install --user pandoc-inline-headers
 
 pip3 install --user pandoc-mustache
 
-include-pandoc --update
+#separate include-pandoc --update as it doesn't work clean in &&
+sudo include-pandoc --update
+
 
 # cleanup:
 
