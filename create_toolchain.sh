@@ -30,7 +30,7 @@ echo "ok, let's proceed"
 #
 # tar -xf linux-pandoc_2_7_3.tar.gz
 #
-# sudo mv pandoc-crossref /usr/local/bin
+  # sudo mv pandoc-crossref /usr/local/bin
 #
 # # install pandoc via binary
 #
@@ -44,7 +44,7 @@ echo "ok, let's proceed"
 #
 # # this is required for the entire environment
 #
-# sudo apt install -y python-pip python3-pip python3-setuptools python-setuptools make make-guile
+# sudo apt install -y python-pip python3-pip python3-setuptools python-setuptools make-guile
 #
 # wget https://raw.githubusercontent.com/alpianon/pandoc-vex/master/pandoc-vex
 # sudo cp pandoc-vex /usr/local/bin/ && sudo chmod +x /usr/local/bin/pandoc-vex
