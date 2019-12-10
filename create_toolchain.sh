@@ -46,10 +46,15 @@ sudo apt update
 
 sudo apt install -y python-pip python3-pip python3-setuptools python-setuptools make-guile
 
+# Always use one or the other: pandoc-vex is deprecated (legacy)
+# pandoc-secgroups is the way to go
+
+wget https://raw.githubusercontent.com/alpianon/pandoc-secgroups/master/pandoc-secgroups
+sudo cp pandoc-secgroups /usr/local/bin/ && sudo chmod +x /usr/local/bin/pandoc-secgroups
+
 wget https://raw.githubusercontent.com/alpianon/pandoc-vex/master/pandoc-vex
 sudo cp pandoc-vex /usr/local/bin/ && sudo chmod +x /usr/local/bin/pandoc-vex
 
-# End of commented out
 
 # and now the filters (as normal user, better)
 
