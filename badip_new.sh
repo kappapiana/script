@@ -52,3 +52,6 @@ done < $1
 
 sudo bash -c "iptables-save > /etc/network/iptables.save"
 
+
+# Examples of extracting bad IPs:
+# sudo grep -P "rosco sshd\[.*\]: Invalid user" /var/log/auth.log | awk {'print $10'} | sort | uniq -c | sort -n | awk {'print $2'} > foe.txt
