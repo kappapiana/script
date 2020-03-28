@@ -2,14 +2,10 @@
 
 echo "***WARNING***:
 
-this is an incredible hack
-only meant to produce something usable
-for a Linux Ubuntu 18.4, probably broken anywhere else
+this script is meant to produce something usable
+for a Linux Ubuntu 18.4 or after, probably broken anywhere else
 please check what it does before installing
-
-**** important ****
-If you are using SUDO to run this script, revert to normal user.
-We are sudoing you within the script when necessary, but you need to uncomment
+It will NOT work on non Debian-based Linux
 
 Do you want to continue? just insert anything
 otherwise, ctrl+c  NOW! "
@@ -19,35 +15,47 @@ read varname
 
 echo "ok, let's proceed"
 
+# check if script is run as normal user
 
+if [[ $EUID == 0 ]]; then
+   echo "This script must NOT be run as root
+please switch to your user or avoid using sudo.
+You will be asked to authenticate for sudo, if needed"
+   exit 1
+fi
 
 # We install pandoc-crossref (not in the official distribution) and a recent version of pandoc
 
 filtersdir=~/.pandoc/filters
 installdir=/usr/local/bin
 tmpdir=/tmp/tmpdir
+pandoc_ver=`apt-cache policy pandoc | grep Inst | awk '{print $2}' | awk --field-separator="-" '{print $1}'`C
 
 # create ad go to tempdir
 
 mkdir $tmpdir
 cd $tmpdir
 
-wget https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz
+# download and install pandoc-crossref if there is none
 
-tar -xf linux-pandoc_2_7_3.tar.gz
+[ -f $installdir/pandoc-crossref ] || \
+( wget https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz && \
+tar -xf linux-pandoc_2_7_3.tar.gz && sudo mv pandoc-crossref $installdir ) || \
+echo "something went wront with pandoc-crossref"
 
-sudo mv pandoc-crossref $installdir
+# install pandoc via binary, if version insufficient
 
-# install pandoc via binary
+if  [[ "$pandoc_ver" > 2.7 ]] ; then
 
-wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
+  wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
+  sudo dpkg -i pandoc-2.7.3-1-amd64.deb
 
-sudo dpkg -i pandoc-2.7.3-1-amd64.deb
-
-# let's update the repositories
+fi
 
 # install mustache, any complete version if not there already, even if update in error
-which mustache || ( sudo apt update ; sudo apt install ruby-mustache )
+# let's update the repositories
+
+which mustache 1>/dev/null  || ( sudo apt update ; sudo apt install ruby-mustache )
 
 # need lua filters and scripts in the right place, if not already!
 
@@ -73,7 +81,5 @@ rm -rf $tmpdir
 # apm install alpianon/atom-inline-git-diff
 
 echo "ok, everything should be installed now. Fingers crossed!"
-
-sleep 5
 
 echo "BYE!"
