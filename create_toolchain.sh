@@ -45,7 +45,7 @@ echo "something went wront with pandoc-crossref"
 
 # install pandoc via binary, if version insufficient
 
-if  [[ "$pandoc_ver" > 2.7 ]] ; then
+if  [[ "$pandoc_ver" < 2.7 ]] ; then
 
   wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
   sudo dpkg -i pandoc-2.7.3-1-amd64.deb
