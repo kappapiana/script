@@ -72,7 +72,7 @@ if  [[ "$pandoc_ver" < $minversion ]] ; then
     wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
     sudo dpkg -i pandoc-2.7.3-1-amd64.deb
 
-    echo "abbiamo installato Pandoc alla versione $minversion"
+    echo "we have installed Pandoc to $minversion from github (not repositories)"
   else
     update_pandoc="true"
   fi
