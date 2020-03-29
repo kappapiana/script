@@ -53,8 +53,8 @@ cd $tmpdir
 
 # Debian packages:
 
-pandoc_ver=`apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | awk --field-separator="-" '{print $1}'`
-pandoc_cand=`apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' |awk --field-separator="-" '{print $1}'`
+pandoc_ver=`apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | awk 'BEGIN { FS = "-" } ; {print $1}'`
+pandoc_cand=`apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' |awk 'BEGIN { FS = "-" } ; {print $1}'`
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
