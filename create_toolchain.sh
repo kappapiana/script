@@ -1,64 +1,97 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-echo "***WARNING***:
-
-this script is meant to produce something usable
-for a Linux Ubuntu 18.4 or after, probably broken anywhere else
-please check what it does before installing
-It will NOT work on non Debian-based Linux
-
-Do you want to continue? just insert anything
-otherwise, ctrl+c  NOW! "
-
-
-read varname
-
-echo "ok, let's proceed"
-
-# check if script is run as normal user
-
-if [[ $EUID == 0 ]]; then
-   echo "This script must NOT be run as root
-please switch to your user or avoid using sudo.
-You will be asked to authenticate for sudo, if needed"
-   exit 1
-fi
-
-# We install pandoc-crossref (not in the official distribution) and a recent version of pandoc
+# =================================
+# Set Variables
+# =================================
 
 filtersdir=~/.pandoc/filters
 installdir=/usr/local/bin
 tmpdir=/tmp/tmpdir
-pandoc_ver=`apt-cache policy pandoc | grep Inst | awk '{print $2}' | awk --field-separator="-" '{print $1}'`C
+deb_ver=`cat /etc/debian_version`
+minversion="2.7" #Minimum version for Pandoc
 
-# create ad go to tempdir
+# =================================
+# Preliminary controls
+# =================================
 
+# check if root
+
+if [[ $EUID == 0 ]]; then
+  echo "
+  ***ERROR***
+  Sorry, this script must NOT be run as root:
+  please log in as normal user or avoid using sudo.
+  You will be asked to authenticate for sudo, if needed"
+   exit 1
+fi
+
+# Check if Debian
+
+if [ -z $deb_ver ] ; then
+  echo "Questo non sembra essere un sistema Debian -- Aborting" ; exit 1
+fi
+
+# check if sudoer
+
+echo "
+  We might now ask you to insert your password to test
+  you can sudo
+  "
+
+if [ `sudo touch /tmp/souder` ] ; then
+ echo "
+  Oh no, you are not a sudoer
+  make sure your user can sudo"
+ exit 1
+fi
+
+# =================================
+# Actual script
+# =================================
+
+# we operate from a temporary directory
 mkdir $tmpdir
 cd $tmpdir
 
-# download and install pandoc-crossref if there is none
+# Debian packages:
 
-[ -f $installdir/pandoc-crossref ] || \
-( wget https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz && \
-tar -xf linux-pandoc_2_7_3.tar.gz && sudo mv pandoc-crossref $installdir ) || \
-echo "something went wront with pandoc-crossref"
+pandoc_ver=`apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | awk --field-separator="-" '{print $1}'`
+pandoc_cand=`apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' |awk --field-separator="-" '{print $1}'`
 
-# install pandoc via binary, if version insufficient
+# Install pandoc and only if the version in repositories is not sufficiently recent
+# fetch it and install manually
 
-if  [[ "$pandoc_ver" < 2.7 ]] ; then
+if  [[ "$pandoc_ver" < $minversion ]] ; then
+  if  [[ "$pandoc_cand" < $minversion ]] ; then
 
-  wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
-  sudo dpkg -i pandoc-2.7.3-1-amd64.deb
+    wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb
+    sudo dpkg -i pandoc-2.7.3-1-amd64.deb
 
+    echo "abbiamo installato Pandoc alla versione $minversion"
+  else
+    update_pandoc="true"
+  fi
+else
+echo "Pandoc è alla versione desiderata"
+update_pandoc="false"
 fi
 
-# install mustache, any complete version if not there already, even if update in error
-# let's update the repositories
+# check if apt cache is sufficiently recent, else, skip
+last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
+now=$(date +%s)
+if [ $((now - last_update)) -gt 3600 ]; then
+  update_apt="true" ; else
+  update_apt="false"
+fi
 
-which mustache 1>/dev/null  || ( sudo apt update ; sudo apt install ruby-mustache )
 
-# need lua filters and scripts in the right place, if not already!
+if [ $update_pandoc = "true" ] ; then
+ [ $update_apt = "true" ] && sudo apt update && update_apt="false" ; sudo apt install pandoc
+fi
 
+which mustache 1>/dev/null  || ( [ $update_apt = "true" ] && sudo apt update ; sudo apt install ruby-mustache )
+
+# Now we donwload a bunch of filters and stuff if missing
 
 [ -f $filtersdir/crossref-ordered-list.lua ] || wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/crossref-ordered-list.lua
 [ -f $filtersdir/inline-headers.lua ] || wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/inline-headers.lua
@@ -69,17 +102,24 @@ which mustache 1>/dev/null  || ( sudo apt update ; sudo apt install ruby-mustach
 [ -f $installdir/howdyadoc-legal-preview ] || sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-preview
 [ -f $installdir/pp-include.pl ] || sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/pp-include.pl
 
-# make stuff executable
+
+[ -f $installdir/pandoc-crossref ] || \
+( wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz && \
+tar -xf $tmpdir/linux-pandoc_2_7_3.tar.gz && sudo mv $tmpdir/pandoc-crossref $installdir ) || \
+echo "something went wrong with pandoc-crossref"
+
+
+# make stuff executable in the install directory
 
 sudo chmod +x $installdir/*
 
-# cleanup:
 
-rm -rf $tmpdir
+# cleanup temp directory:
 
-# uncomment if you have atom installed!
-# apm install alpianon/atom-inline-git-diff
+sudo rm -rf $tmpdir
 
-echo "ok, everything should be installed now. Fingers crossed!"
-
-echo "BYE!"
+echo "
+*********************************************
+congratulations, your $deb_ver can do it!
+********************************************
+"
