@@ -81,11 +81,12 @@ echo "Pandoc is already up to the needed version"
 update_pandoc="false"
 fi
 
-# check if apt cache is sufficiently recent, else, skip
+# check if apt cache is sufficiently recent or has it been ever updated, else, skip
 
 last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
 now=$(date +%s)
-if [ $((now - last_update)) -gt 3600 ]; then
+actualsize=$(du -k /var/cache/apt/pkgcache.bin | cut -f 1)
+if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ]; then
   update_apt="true" ; else
   update_apt="false"
 fi
