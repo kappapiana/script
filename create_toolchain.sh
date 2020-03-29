@@ -40,8 +40,9 @@ if [ $? != 0 ]
 then
   echo "
   Oh no, you are not a sudoer!
-  Make sure your user can sudo: visudo could help
-  or add yourself to sudo group usermod -a -G sudo $yourusername"
+  Make sure your user can sudo.
+  or add yourself to sudo group. Go back to root and use:
+  # usermod -a -G sudo $yourusername"
   exit 1
 fi
 
