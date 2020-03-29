@@ -57,13 +57,10 @@ rm $tmpdir/* 2>/dev/null
 
 # Debian packages:
 
+# check what pandoc version do we have installed and available
 pandoc_ver=`apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
 pandoc_cand=`apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
-
-if [ $pandoc_ver = "(none)." ] ; then
-pandoc_ver=0
-
-fi
+[[ $pandoc_ver =~ ^.*none.*$ ]] && pandoc_ver=0 # if no version installed, we neee a number
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
@@ -79,7 +76,7 @@ if  [[ "$pandoc_ver" < $minversion ]] ; then
     update_pandoc="true"
   fi
 else
-echo "Pandoc is up to the needed version"
+echo "Pandoc is already up to the needed version"
 update_pandoc="false"
 fi
 
