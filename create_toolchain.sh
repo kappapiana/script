@@ -9,6 +9,7 @@ installdir=/usr/local/bin
 tmpdir=/tmp/tmpdir
 deb_ver=`cat /etc/debian_version`
 minversion="2.7" #Minimum version for Pandoc
+update_pandoc="false"
 
 # =================================
 # Preliminary controls
@@ -50,11 +51,17 @@ fi
 # we operate from a temporary directory
 mkdir $tmpdir
 cd $tmpdir
+rm $tmpdir/* 2>/dev/null
 
 # Debian packages:
 
-pandoc_ver=`apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | awk 'BEGIN { FS = "-" } ; {print $1}'`
-pandoc_cand=`apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' |awk 'BEGIN { FS = "-" } ; {print $1}'`
+pandoc_ver=`apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+pandoc_cand=`apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+
+if [ $pandoc_ver = "(none)." ] ; then
+pandoc_ver=0
+
+fi
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
