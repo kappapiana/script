@@ -125,6 +125,7 @@ sudo rm -rf $tmpdir
 
 echo "
 *********************************************
-congratulations, your $deb_ver can do it!
+congratulations, your Debian $deb_ver
+or Debian based distro can do it!
 ********************************************
 "
