@@ -4,12 +4,12 @@
 # Set Variables
 # =================================
 
-filtersdir=~/.pandoc/filters
-installdir=/usr/local/bin
+filtersdir=~/.pandoc/filters # lua filters will go here (user only)
+installdir=/usr/local/bin # binaries will go here (system-wide)
 tmpdir=/tmp/tmpdir
-deb_ver=`cat /etc/debian_version`
+deb_ver=`cat /etc/debian_version` # find out which Debian are we on
 minversion="2.7" #Minimum version for Pandoc
-update_pandoc="false"
+update_pandoc="false" # inizialize variable
 
 # =================================
 # Preliminary controls
@@ -39,8 +39,9 @@ sudo touch /tmp/test 2> /dev/null
 if [ $? != 0 ]
 then
   echo "
-  Oh no, you are not a sudoer
-  make sure your user can sudo"
+  Oh no, you are not a sudoer!
+  Make sure your user can sudo: visudo could help
+  or add yourself to sudo group usermod -a -G sudo $yourusername"
   exit 1
 fi
 
@@ -82,6 +83,7 @@ update_pandoc="false"
 fi
 
 # check if apt cache is sufficiently recent, else, skip
+
 last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
 now=$(date +%s)
 if [ $((now - last_update)) -gt 3600 ]; then
@@ -89,10 +91,13 @@ if [ $((now - last_update)) -gt 3600 ]; then
   update_apt="false"
 fi
 
+# If we need to install or update pandoc from repository, we do it now
 
 if [ $update_pandoc = "true" ] ; then
  [ $update_apt = "true" ] && sudo apt update && update_apt="false" ; sudo apt install pandoc
 fi
+
+# test if mustache is installed, if not, install ruby-mustache from repository
 
 which mustache 1>/dev/null  || ( [ $update_apt = "true" ] && sudo apt update ; sudo apt install -y ruby-mustache )
 
