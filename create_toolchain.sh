@@ -28,21 +28,20 @@ fi
 # Check if Debian
 
 if [ -z $deb_ver ] ; then
-  echo "Questo non sembra essere un sistema Debian -- Aborting" ; exit 1
+  echo "This ain't no Debian-based  -- Aborting" ; exit 1
 fi
 
 # check if sudoer
 
-echo "
-  We might now ask you to insert your password to test
-  you can sudo
-  "
 
-if [ `sudo touch /tmp/souder` ] ; then
- echo "
+sudo touch /tmp/test 2> /dev/null
+
+if [ $? != 0 ]
+then
+  echo "
   Oh no, you are not a sudoer
   make sure your user can sudo"
- exit 1
+  exit 1
 fi
 
 # =================================
@@ -72,7 +71,7 @@ if  [[ "$pandoc_ver" < $minversion ]] ; then
     update_pandoc="true"
   fi
 else
-echo "Pandoc è alla versione desiderata"
+echo "Pandoc is up to the needed version"
 update_pandoc="false"
 fi
 
