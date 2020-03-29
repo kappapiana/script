@@ -42,7 +42,8 @@ then
   Oh no, you are not a sudoer!
   Make sure your user can sudo.
   or add yourself to sudo group. Go back to root and use:
-  # usermod -a -G sudo $yourusername"
+  # usermod -a -G sudo $USER
+  "
   exit 1
 fi
 
