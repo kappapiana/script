@@ -85,7 +85,7 @@ fi
 
 last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
 now=$(date +%s)
-actualsize=$(du -k /var/cache/apt/pkgcache.bin | cut -f 1)
+actualsize=$(du -k /var/cache/apt/pkgcache.bin | cut -f 1) # if size too small, need to force update: check size
 if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ]; then
   update_apt="true" ; else
   update_apt="false"
