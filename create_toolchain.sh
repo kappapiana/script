@@ -33,7 +33,6 @@ fi
 
 # check if sudoer
 
-
 sudo touch /tmp/test 2> /dev/null
 
 if [ $? != 0 ]
@@ -88,7 +87,7 @@ if [ $update_pandoc = "true" ] ; then
  [ $update_apt = "true" ] && sudo apt update && update_apt="false" ; sudo apt install pandoc
 fi
 
-which mustache 1>/dev/null  || ( [ $update_apt = "true" ] && sudo apt update ; sudo apt install ruby-mustache )
+which mustache 1>/dev/null  || ( [ $update_apt = "true" ] && sudo apt update ; sudo apt install -y ruby-mustache )
 
 # Now we donwload a bunch of filters and stuff if missing
 
