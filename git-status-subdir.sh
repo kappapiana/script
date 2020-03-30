@@ -55,7 +55,15 @@ do
 		mod=0
 		cd $f
 
-		git fetch
+		last_update=$(stat -c %Y .git/FETCH_HEAD)
+		now=$(date +%s)
+				if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ]; then
+		  echo "fetching"
+			git fetch;
+		  else
+		  echo "no need to fetch, too recently fetched, check locally"
+			fi
+
 
 		# Check for modified files
 		if [ $(git status | grep modified -c) -ne 0 ]
