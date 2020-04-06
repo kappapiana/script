@@ -1,103 +1,115 @@
-@@ -1,148 +0,0 @@ 
-#!/bin/bash
+#!/usr/bin/env bash
 
-echo ""
-echo "+**************************************************************+"
-echo "©2019 Carlo Piana, licensed under Creative Commons Zero (CC0)"
-echo "free to use, modify and distribute for any use"
-echo "no string attached"
-echo "Alpha software, features not consolidated yet"
-echo "this file has been modified"
-echo "+**************************************************************+"
-echo ""
+red=$(tput setaf 1)
+green=$(tput setaf 76)
+normal=$(tput sgr0)
+bold=$(tput bold)
+underline=$(tput sgr 0 1)
 
-sleep 1.5 # Waits 1.5 second
+instout="install_output.log"
+insterr="install_error.log"
+
+i_ok() { printf "${green}✔${normal}\n"; }
+i_ko() { printf "${red}✖${normal}\n...exiting, check logs"; }
+
+
+# some variables that will be used and make sure the zip dir exists
+
+curdir=`pwd`
+filename="_anonymized_$1"
+zipdir="/tmp/libreoffice"
+
+mkdir $zipdir 2&> /dev/null
+rm -rf $zipdir/*
+
+function check_i {
+  if [ $? -eq 0 ]; then
+    i_ok
+  else
+    i_ko; read
+    exit
+  fi
+}
+
+function list_authors {
+
+			grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g' > $zipdir/authors.txt
+
+			echo "+----------------------------------------------------------------"
+			cat $zipdir/authors.txt
+			echo "+----------------------------------------------------------------"
+}
+
+function choose_subs {
+
+	echo "Please insert the name you want to be replaced"
+
+		read varname2
+
+	echo "Now. please insert the name you want to be the one displayed in revisions"
+
+		read varname
+
+		sed -i -e s/"$varname2"/"$varname"/g $zipdir/*.xml
+
+}
+
+# Checking the required number of variables
+
+[ ! -z $1 ] && printf "\nok, variable is present, good "|| (printf "missing variable, sucker, a namefile is expected " && exit 1)
+check_i
 
 #checking if correct filetype
 
-if [[ $(file --mime-type -b "$1") != application/vnd.oasis.opendocument.text ]];
-then
+[[ $(file --mime-type -b "$1") == "application/vnd.oasis.opendocument.text" ]] || (printf "\\nNot an ODT document " && exit 1)
+check_i
 
-	echo "+**************************************************+"
-	echo "WARNING: WRONG DOCUMENT														 |"
-	echo "wrong document type: not OpenDocument text (odt)   |"
-	echo "+**************************************************+"
+printf "\nThis is the list of current authors,
+now you will be asked to chose what you want to make of them: \n"
 
-	exit
+unzip -oq "$1" -d $zipdir
 
-else
+list_authors
 
-	# checking if variables are all filled in
-
-	if [ "$1" = "" ]; then
-
-		echo ""
-		echo "+----------------------------------------------------------------"
-		echo "|"
-		echo "| missing variable (1 required)"
-		echo "|"
-		# echo "| usage: [scriptname] [filename] [\"replaced with\"] "
-		echo "| usage: [scriptname] [filename]  "
-		echo "|"
-		echo "+----------------------------------------------------------------"
-		echo ""
-	else
-
-		# let's create a directory. If it's already there, who cares. Let's just have an error. Errors are cool!
-
-		mkdir /tmp/libreoffice 2&> /dev/null
-
-		# some variables that will be used
-
-		filename=_anonymized_$1
-		curdir=`pwd`
-		zipdir=/tmp/libreoffice
-
-		# ok, we're ready, let's meddle with the content!
-
-		cp "$1" "$filename"
-
-		unzip -oq "$filename" -d $zipdir
-
-		# Mock select menu
-
-		echo 'Please enter your choice: '
-		options=("Change all" "Change only one")
-		select opt in "${options[@]}"
-		do
-			case $opt in
-				"Change all")
-				echo "you chose to change all names with one name"
-				break
-				;;
-				"Change only one")
-				echo "you chose to change only one name"
-				break
-				;;
-				*) echo "invalid option $REPLY";;
-			esac
-		done
+# ok, we're ready, let's meddle with the content!
 
 
-		# Now we create a list of authors of modifications
 
-		grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g' > $zipdir/authors.txt
+# Mock select menu
 
-		echo "these are the names I have found and are going to be replaced"
-		echo "+----------------------------------------------------------------"
-		cat $zipdir/authors.txt
-		echo "+----------------------------------------------------------------"
+echo 'Please enter your choice: '
+options=("Change all" "Change only one")
+select opt in "${options[@]}"
+do
+	case $opt in
+		"Change all")
+		echo "you chose to change ${bold}all names${normal} with one name"
+		break
+		;;
+		"Change only one")
+		echo "you chose to change ${bold}only one${normal} name"
+		break
+		;;
+		*) echo "invalid option $REPLY";;
+	esac
+done
+
+
 	# Now we ask for input
 
 
 
 		if [ "$REPLY" = "1" ]; then
 
-			echo "Please insert the name you want to be the one displayed in revisions"
+			printf "Please insert the name you want to be ${red}the only one${normal} displayed in revisions \n"
+
+			printf "instead of all these\\n"
+
+			list_authors
 
 			read varname
 
-			echo Thanks, we are going to replace everything with $varname
+			printf "\\nThanks, we are going to replace everything with ${green}$varname${normal} \\n"
 
 
 		cat $zipdir/authors.txt | while  read i ; do
@@ -108,25 +120,34 @@ else
 
 		else
 
-			echo "Please insert the name you want to be replaced"
+			printf "Please insert the name you want to be ${red}changed from ${normal} in the following list \n"
 
-			read varname2
+			list_authors
 
-			echo "Now. please insert the name you want to be the one displayed in revisions"
+			choose_subs
 
-			read varname
+			until [[ $choice =~ [YyNn] ]]; do
+      printf "\nContinue with new changes? (Y/n) "; read -n1 choice
+			done
 
-			sed -i -e s/"$varname2"/"$varname"/g $zipdir/*.xml
+			if [[ $choice =~ [Yy] ]]; then
 
+				printf "\\n these are the remaining authors: \\n"
+				list_authors
+
+				choose_subs
+			fi
 		fi
 
 		# this is a dirty hack, because I could not add to zipfile from outside the directory
 		# basing the directory with -b did not work hell knows why
 		# I am SO LAME
 
-
+		cp $1 $filename # needed to have correct structure FIXME
 		cd "$zipdir"
 
+		touch "$curdir/$filename"
+    
 		zip -fq  "$curdir/$filename" *.xml
 
 		cd "$curdir"
@@ -143,7 +164,3 @@ else
 
 		# Uncomment to clear up the temporary directory
 		# rm $zipdir
-
-	fi
-
-fi
