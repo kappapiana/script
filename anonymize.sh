@@ -47,7 +47,7 @@ authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | un
 
 
 
-function choose_subs {
+function choose_subs { # FIXME: make the choice only from the authors_array array
 
 	echo "Please insert the name you want to be replaced"
 
