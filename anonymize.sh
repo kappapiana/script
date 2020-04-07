@@ -124,10 +124,7 @@ done
 
     printf "\\nThanks, we are going to replace everything with ${green}$name_to${normal} \\n"
 
-
     for i in "${authors_array[@]}" ; do
-
-      echo "$i"
 
       sed  -i -e s/"$i"/"$name_to"/g $zipdir/*.xml
 
@@ -177,15 +174,12 @@ done
 
 		cd "$curdir"
 
-		echo "done"
 
-		echo ""
+echo "
 
-		echo "***WARNING***  Newfile is in $curdir/$filename"
-		echo ""
-		echo "Please move it back to the original filename, if you want to perform further changes"
-		echo "But will you?"
-		echo ""
+${green}Script complete${normal}
 
-		# Uncomment to clear up the temporary directory
-		# rm $zipdir
+***WARNING***  Newfile is in $curdir/${bold}$filename${normal}
+
+Please move it back to the original filename
+"
