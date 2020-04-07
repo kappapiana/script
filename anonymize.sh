@@ -8,7 +8,7 @@ underline=$(tput sgr 0 1)
 
 instout="install_output.log"
 insterr="install_error.log"
-my_array=(foo bar baz)
+declare -a authors_array=()
 
 i_ok() { printf "${green}✔${normal}\n"; }
 i_ko() { printf "${red}✖${normal}\n...exiting, check logs"; }
@@ -35,13 +35,10 @@ function check_i {
 
 function list_authors {
 
-
-declare -a authors_array=()
-
 authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g'` )
 
 			echo "+----------------------------------------------------------------"
-			echo "lista ${authors_array[@]}"
+			echo "authors are: ${authors_array[@]}"
 			echo "+----------------------------------------------------------------"
 }
 
@@ -49,26 +46,36 @@ authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | un
 
 function choose_subs { # FIXME: make the choice only from the authors_array array
 
-	echo "Please insert the name you want to be replaced"
+	printf "Please insert the name you want to be replaced\\n:> "
 
-		read varname2
+		read name_from
 
-	echo "Now. please insert the name you want to be the one displayed in revisions"
+    until [[ " ${authors_array[@]} " =~ " ${name_from} " ]]; do
 
-		read varname
+    printf "${name_from} is not a name of authors (${bold}case sensitive!${normal}), \\nplease choose one of "
+    printf "%s, " "${authors_array[@]}"
+    printf "\\n:> "
 
-		sed -i -e s/"$varname2"/"$varname"/g $zipdir/*.xml
+    read name_from ; done
+
+	printf "Now. please insert the name you want to be the one displayed in revisions \ninstead of ${name_from} \\n:> "
+
+		read name_to
+
+		sed -i -e s/"$name_from"/"$name_to"/g $zipdir/*.xml
 
 }
 
+clear
+
 # Checking the required number of variables
 
-[ ! -z $1 ] && printf "\nok, variable is present, good "|| (printf "missing variable, sucker, a namefile is expected " && exit 1)
+[ ! -z $1 ] && printf "\nFilename is present "|| (printf "missing variable, sucker, a namefile is expected " && exit 1)
 check_i
 
 #checking if correct filetype
 
-[[ $(file --mime-type -b "$1") == "application/vnd.oasis.opendocument.text" ]] || (printf "\\nNot an ODT document " && exit 1)
+[[ $(file --mime-type -b "$1") == "application/vnd.oasis.opendocument.text" ]] && printf "\\nGood filename " || (printf "\\nNot an ODT document " && exit 1)
 check_i
 
 printf "\nThis is the list of current authors,
@@ -78,14 +85,13 @@ now you will be asked to chose what you want to make of them: \n"
 
  list_authors
 
-
 # ok, we're ready, let's meddle with the content!
 
 
 
 # Mock select menu
 
-echo 'Please enter your choice: '
+printf "Please enter your choice: \\n\\n"
 options=("Change all" "Change only one")
 select opt in "${options[@]}"
 do
@@ -106,52 +112,57 @@ done
 	# Now we ask for input
 
 
+  if [ "$REPLY" = "1" ]; then
 
-		if [ "$REPLY" = "1" ]; then
+    printf "Please insert the name you want to be ${red}the only one${normal} displayed in revisions \n"
 
-			printf "Please insert the name you want to be ${red}the only one${normal} displayed in revisions \n"
+    printf "instead of all these\\n"
 
-			printf "instead of all these\\n"
+    list_authors
 
-			list_authors
+    read name_to
 
-			read varname
-
-			printf "\\nThanks, we are going to replace everything with ${green}$varname${normal} \\n"
+    printf "\\nThanks, we are going to replace everything with ${green}$name_to${normal} \\n"
 
 
-		cat $zipdir/authors.txt | while  read i ; do
+    for i in "${authors_array[@]}" ; do
 
-			sed  -i -e s/"$i"/"$varname"/g $zipdir/*.xml
+      echo "$i"
 
-			done
+      sed  -i -e s/"$i"/"$name_to"/g $zipdir/*.xml
 
-		else
+    done
 
-			printf "Please insert the name you want to be ${red}changed from ${normal} in the following list \n"
+  else
 
-			list_authors
+    printf "Please insert the name you want to be ${red}changed from ${normal} in the following list \n"
 
-			choose_subs
+    list_authors
 
-			until [[ $choice =~ [YyNn] ]]; do
+    choose_subs
+
+    printf "now the list of authors is: \\n"
+
+    list_authors
+
+    until [[ $choice =~ [YyNn] ]]; do
       printf "\nContinue with new changes? (Y/n) "; read -n1 choice
-			done
+    done
 
-			until [[ $choice =~ [Nn] ]]; do
+    until [[ $choice =~ [Nn] ]]; do
 
-				printf "\\n these the authors you can change: \\n"
-				list_authors
+      printf "\\n these the authors you can change: \\n"
+      list_authors
 
-				choose_subs
+      choose_subs
 
-				printf "\\n these current authors: \\n"
-				list_authors
-				printf "\\n do you want to continue?" ; read -n1 choice
+      printf "\\n these current authors: \\n"
+      list_authors
+      printf "\\n do you want to continue?" ; read -n1 choice
 
-			done
+    done
 
-		fi
+  fi
 
 		# this is a dirty hack, because I could not add to zipfile from outside the directory
 		# basing the directory with -b did not work hell knows why
