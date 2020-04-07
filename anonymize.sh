@@ -8,6 +8,7 @@ underline=$(tput sgr 0 1)
 
 instout="install_output.log"
 insterr="install_error.log"
+my_array=(foo bar baz)
 
 i_ok() { printf "${green}✔${normal}\n"; }
 i_ko() { printf "${red}✖${normal}\n...exiting, check logs"; }
@@ -31,14 +32,20 @@ function check_i {
   fi
 }
 
+
 function list_authors {
 
-			grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g' > $zipdir/authors.txt
+
+declare -a authors_array=()
+
+authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g'` )
 
 			echo "+----------------------------------------------------------------"
-			cat $zipdir/authors.txt
+			echo "lista ${authors_array[@]}"
 			echo "+----------------------------------------------------------------"
 }
+
+
 
 function choose_subs {
 
@@ -67,9 +74,10 @@ check_i
 printf "\nThis is the list of current authors,
 now you will be asked to chose what you want to make of them: \n"
 
-unzip -oq "$1" -d $zipdir
+ unzip -oq "$1" -d $zipdir
 
-list_authors
+ list_authors
+
 
 # ok, we're ready, let's meddle with the content!
 
@@ -130,13 +138,19 @@ done
       printf "\nContinue with new changes? (Y/n) "; read -n1 choice
 			done
 
-			if [[ $choice =~ [Yy] ]]; then
+			until [[ $choice =~ [Nn] ]]; do
 
-				printf "\\n these are the remaining authors: \\n"
+				printf "\\n these the authors you can change: \\n"
 				list_authors
 
 				choose_subs
-			fi
+
+				printf "\\n these current authors: \\n"
+				list_authors
+				printf "\\n do you want to continue?" ; read -n1 choice
+
+			done
+
 		fi
 
 		# this is a dirty hack, because I could not add to zipfile from outside the directory
@@ -147,7 +161,7 @@ done
 		cd "$zipdir"
 
 		touch "$curdir/$filename"
-    
+
 		zip -fq  "$curdir/$filename" *.xml
 
 		cd "$curdir"
