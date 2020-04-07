@@ -4,10 +4,10 @@ red=$(tput setaf 1)
 green=$(tput setaf 76)
 normal=$(tput sgr0)
 bold=$(tput bold)
-underline=$(tput sgr 0 1)
+# underline=$(tput sgr 0 1)
 
-instout="install_output.log"
-insterr="install_error.log"
+# instout="install_output.log"
+# insterr="install_error.log"
 declare -a authors_array=()
 
 i_ok() { printf "${green}✔${normal}\n"; }
@@ -21,13 +21,13 @@ filename="_anonymized_$1"
 zipdir="/tmp/libreoffice"
 
 mkdir $zipdir 2&> /dev/null
-rm -rf $zipdir/*
+rm -rf ${zipdir:?}/*
 
 function check_i {
   if [ $? -eq 0 ]; then
     i_ok
   else
-    i_ko; read
+    i_ko; read -r
     exit
   fi
 }
@@ -35,10 +35,15 @@ function check_i {
 
 function list_authors {
 
-authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g'` )
+# authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g'` )
+mapfile -t authors_array < <(grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g')
+
+
 
 			echo "+----------------------------------------------------------------"
-			echo "authors are: ${authors_array[@]}"
+			printf "authors are: "
+      printf "%s, " "${authors_array[@]}"
+      printf "\n"
 			echo "+----------------------------------------------------------------"
 }
 
@@ -48,21 +53,21 @@ function choose_subs { # FIXME: make the choice only from the authors_array arra
 
 	printf "Please insert the name you want to be replaced\\n:> "
 
-		read name_from
+		read -r name_from
 
-    until [[ " ${authors_array[@]} " =~ " ${name_from} " ]]; do
+    until [[ " ${authors_array[*]} " =~  ${name_from}  ]]; do
 
     printf "${name_from} is not a name of authors (${bold}case sensitive!${normal}), \\nplease choose one of "
     printf "%s, " "${authors_array[@]}"
     printf "\\n:> "
 
-    read name_from ; done
+    read -r name_from ; done
 
 	printf "Now. please insert the name you want to be the one displayed in revisions \ninstead of ${name_from} \\n:> "
 
-		read name_to
+		read -r name_to
 
-		sed -i -e s/"$name_from"/"$name_to"/g $zipdir/*.xml
+		sed -i -e s/"$name_from"/"$name_to"/g $zipdir/*glob*.xml
 
 }
 
@@ -120,7 +125,7 @@ done
 
     list_authors
 
-    read name_to
+    read -r name_to
 
     printf "\\nThanks, we are going to replace everything with ${green}$name_to${normal} \\n"
 
@@ -143,7 +148,7 @@ done
     list_authors
 
     until [[ $choice =~ [YyNn] ]]; do
-      printf "\nContinue with new changes? (Y/n) "; read -n1 choice
+      printf "\nContinue with new changes? (Y/n) "; read -r -n1 choice
     done
 
     until [[ $choice =~ [Nn] ]]; do
@@ -155,7 +160,7 @@ done
 
       printf "\\n these current authors: \\n"
       list_authors
-      printf "\\n do you want to continue?" ; read -n1 choice
+      printf "\\n do you want to continue?" ; read -r -n1 choice
 
     done
 
@@ -166,13 +171,14 @@ done
 		# I am SO LAME
 
 		cp $1 $filename # needed to have correct structure FIXME
-		cd "$zipdir"
+
+		cd "$zipdir" || exit # in case cd fails
 
 		touch "$curdir/$filename"
 
-		zip -fq  "$curdir/$filename" *.xml
+		zip -fq  "$curdir/$filename" -- *.xml
 
-		cd "$curdir"
+		cd "$curdir" || exit # in case it fails
 
 
 echo "
