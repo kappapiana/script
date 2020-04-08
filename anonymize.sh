@@ -47,7 +47,30 @@ mapfile -t authors_array < <(grep -hoP "$author_string" $zipdir -R | sort | uniq
 			echo "+----------------------------------------------------------------"
 }
 
+function change_all {
 
+	printf "Please insert the name you want to be ${red}the only one${normal} displayed in revisions \n"
+
+	printf "instead of all these\\n"
+
+	list_authors
+
+	read -r name_to
+
+	printf "\\nThanks, we are going to replace everything with ${green}$name_to${normal} \\n"
+
+	for i in "${authors_array[@]}" ; do
+
+		for d in $zipdir/*/ ; do
+
+			sed -i -e s/"[\"|\>]$i"/"\"$name_to"/g $d/*.xml ; done
+
+
+		sed -i -e s/"$i"/"$name_to"/g $zipdir/*.xml
+
+	done
+
+}
 
 function choose_subs { # FIXME: make the choice only from the authors_array array
 
@@ -140,21 +163,13 @@ done
 
   if [ "$REPLY" = "1" ]; then
 
-    printf "Please insert the name you want to be ${red}the only one${normal} displayed in revisions \n"
+ 	list_authors
 
-    printf "instead of all these\\n"
+ 	change_all
 
-    list_authors
+	printf "now the list of authors is: \\n"
 
-    read -r name_to
-
-    printf "\\nThanks, we are going to replace everything with ${green}$name_to${normal} \\n"
-
-    for i in "${authors_array[@]}" ; do
-
-      sed  -i -e s/"$i"/"$name_to"/g $zipdir/*.xml
-
-    done
+	list_authors
 
   else
 
@@ -191,12 +206,13 @@ done
 		# basing the directory with -b did not work hell knows why
 		# I am SO LAME
 
-		cp $1 $filename # needed to have correct structure FIXME
+		# cp $1 $filename # needed to have correct structure FIXME
 
 		cd "$zipdir" || exit # in case cd fails
 
-		touch "$curdir/$filename"
-
+		# touch "$curdir/$filename"
+    rm "$curdir/$filename"
+		
     find -print | zip "$curdir/$filename" -@
 
 		cd "$curdir" || exit # in case it fails
