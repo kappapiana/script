@@ -34,19 +34,10 @@ function check_i {
 }
 
 
-<<<<<<< HEAD
 function list_authors {
 
-mapfile -t authors_array < <(grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g')
-
-=======
-
-function list_authors {
-
-# mapfile -t authors_array < <(grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g')
 mapfile -t authors_array < <(grep -hoP "$author_string" $zipdir -R | sort | uniq | sed -E "s@$author_string@\1@g")
 
->>>>>>> b033877... Port docx (#5)
 			echo "+----------------------------------------------------------------"
 			printf "authors are: "
       printf "%s, " "${authors_array[@]}"
@@ -219,7 +210,8 @@ done
 
 		# touch "$curdir/$filename"
     rm "$curdir/$filename"
-		
+
+
     find -print | zip "$curdir/$filename" -@
 
 		cd "$curdir" || exit # in case it fails
