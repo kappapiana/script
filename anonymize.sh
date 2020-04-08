@@ -9,6 +9,7 @@ bold=$(tput bold)
 # instout="install_output.log"
 # insterr="install_error.log"
 declare -a authors_array=()
+author_string=""
 
 i_ok() { printf "${green}✔${normal}\n"; }
 i_ko() { printf "${red}✖${normal}\n...exiting, check logs"; }
@@ -33,9 +34,11 @@ function check_i {
 }
 
 
+
 function list_authors {
 
-mapfile -t authors_array < <(grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g')
+# mapfile -t authors_array < <(grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g')
+mapfile -t authors_array < <(grep -hoP "$author_string" $zipdir -R | sort | uniq | sed -E "s@$author_string@\1@g")
 
 			echo "+----------------------------------------------------------------"
 			printf "authors are: "
@@ -64,7 +67,11 @@ function choose_subs { # FIXME: make the choice only from the authors_array arra
 
 		read -r name_to
 
-		sed -i -e s/"$name_from"/"$name_to"/g $zipdir/*glob*.xml
+		for d in $zipdir/*/ ; do
+
+		sed -i -e s/"[\"|\>]$name_from"/"\"$name_to"/g $d/*.xml ; done
+
+		sed -i -e s/"$name_from"/"$name_to"/g $zipdir/*.xml
 
 }
 
@@ -77,7 +84,24 @@ check_i
 
 #checking if correct filetype
 
-[[ $(file --mime-type -b "$1") == "application/vnd.oasis.opendocument.text" ]] && printf "\\nGood filename " || (printf "\\nNot an ODT document " && exit 1)
+if
+[[ $(file --mime-type -b "$1") =~ application/vnd.oasis.opendocument.text ]] ; then
+
+printf "\\nGood file type ODT"
+
+author_string="<dc:creator>(.*?)</dc:creator>"
+
+elif
+
+[[ $(file --mime-type -b "$1") =~ application/vnd.openxmlformats-officedocument.wordprocessingml.document ]]; then
+
+printf "\\nGood filetype OOXML "
+
+author_string="w:author=\"(.*?)\""
+
+else
+	 (printf "\\nNot an ODT or OOXML document " && exit 1)
+fi
 check_i
 
 printf "\nThis is the list of current authors,
@@ -173,10 +197,9 @@ done
 
 		touch "$curdir/$filename"
 
-		zip -fq  "$curdir/$filename" -- *.xml
+    find -print | zip "$curdir/$filename" -@
 
 		cd "$curdir" || exit # in case it fails
-
 
 echo "
 
