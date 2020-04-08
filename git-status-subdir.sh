@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "
-this script is only for git directries with repositories in subdirectories
+this script is only for git directories with repositories in subdirectories
 *** 2 levels down ***
 (git/dir/repo/)
 don't use if structure is only one level (git/repo)"
@@ -57,7 +57,8 @@ do
 
 		last_update=$(stat -c %Y .git/FETCH_HEAD)
 		now=$(date +%s)
-				if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ]; then
+
+			if [ $(( $now - $last_update 	)) -gt 3600 ] ; then
 		  echo "fetching"
 			git fetch;
 		  else
