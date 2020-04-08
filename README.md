@@ -1,6 +1,6 @@
 # ODF and DOCX anonymizer
 
-This script does one thing and hopefully it does it well. It allows changing the metadata to comment and track changes and hopefully also other metadata to a document.
+This script `anonymize.sh` does one thing and hopefully it does it well. It allows changing the metadata to comment and track changes and hopefully also other metadata to a document. **Note**, the other scripts are mostly rubbish or half-baked. Don't bother, I know.
 
 ## Rationale
 
@@ -19,9 +19,15 @@ If you put the two under the same name, they get automagically consolidated. So 
 
 This is the second option.
 
-## HOWTO
+## Third thought, docx
 
-Requires a recently updated version of Linux (I target bash 4.0, roughly), preferably git (but it's not necessary) and a working knowledge of running scripts.
+But I also needed that the many time (most of the time) when I have to clean up the mess of multiple internal edits with clients working in docx. Therefore I have added the same structure (also OOXML is an XML bunch of files zipped together) for that file, without the need to convert them in ODT as I used to do before.
+
+So it will also work with docx (OOXML text document), although MS Word® has a feature to change data as an afterthought (but all or none, AFAICR).
+
+# HOWTO
+
+Requires a recently updated version of Linux (I target bash 4.0, roughly), preferably git (but it's not necessary) and a working knowledge of running scripts. The easiest way is to clone the repository somewhere and point to the script from the command line.
 
 This is still work in progress, but it's now reasonably good to go.
 
@@ -47,5 +53,3 @@ cd ~/documents/
 ```
 
 It will interact with you asking if you want to change everything in one go or one author by one. Eventually you will (hopefully) have a file named `_anonymized_doc.odt`. I'm not copying it over so that you can review the result without risking to destroy everything...
-
-It will also work with DOCX, although MS Word® has a feature to change data as an afterthought. But perhaps you will not want to use MS Word. ;-)
