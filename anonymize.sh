@@ -35,10 +35,7 @@ function check_i {
 
 function list_authors {
 
-# authors_array=( `grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g'` )
 mapfile -t authors_array < <(grep -hoP "<dc:creator>.*?</dc:creator>" $zipdir -R | sort | uniq | sed -E 's@<dc:creator>(.*)</dc:creator>@\1@g')
-
-
 
 			echo "+----------------------------------------------------------------"
 			printf "authors are: "
