@@ -25,6 +25,8 @@ But I also needed that the many time (most of the time) when I have to clean up 
 
 So it will also work with docx (OOXML text document), although MS Word® has a feature to change data as an afterthought (but all or none, AFAICR).
 
+**Note**: the script will eventually go to its own repo 
+
 # HOWTO
 
 Requires a recently updated version of Linux (I target bash 4.0, roughly), preferably git (but it's not necessary) and a working knowledge of running scripts. The easiest way is to clone the repository somewhere and point to the script from the command line.
