@@ -35,7 +35,7 @@ function check_i {
 }
 
 # =================================
-# Preliminary controls
+# Preliminary checks
 # =================================
 
 # check if root
@@ -76,8 +76,9 @@ fi
 
 # we operate from a temporary directory
 mkdir $tmpdir
-cd $tmpdir
-rm $tmpdir/* 2>/dev/null
+cd $tmpdir || exit 1 #so if it fails, we dont delete the script's  directory
+i_ko
+rm $tmpdir/* 2>/dev/null # clean slate
 
 # Debian packages:
 
@@ -151,9 +152,10 @@ sudo chmod +x $installdir/*
 
 # cleanup temp directory:
 
-sudo rm -rf $tmpdir
+rm -rf $tmpdir
 
 i_ok
+
 printf "******************************************
 congratulations, your ${green}Debian${normal} $deb_ver
 or Debian based distro can do it!
