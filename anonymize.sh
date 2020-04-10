@@ -107,7 +107,9 @@ function choose_subs { # FIXME: make the choice only from the authors_array arra
 
 		read -r name_to
 
-		for d in $zipdir/*/ ; do
+    content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
+
+    for d in $content_dir ; do
 
 		sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
 
