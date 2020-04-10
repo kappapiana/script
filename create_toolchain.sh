@@ -77,7 +77,7 @@ fi
 # we operate from a temporary directory
 mkdir $tmpdir
 cd $tmpdir || exit 1 #so if it fails, we dont delete the script's  directory
-i_ko
+check_i
 rm $tmpdir/* 2>/dev/null # clean slate
 
 # Debian packages:
