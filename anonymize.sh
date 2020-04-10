@@ -77,12 +77,13 @@ function change_all {
 
 	for i in "${authors_array[@]}" ; do
 
-		for d in $zipdir/*/ ; do
+		content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
 
-			sed -i -e s/"[\"|\>]$i"/"\"$name_to"/g $d/*.xml ; done
+    for d in $content_dir ; do
 
+			sed -i -E s@"(\")$i"@"\1$name_to"@g $d/*.xml ; done
 
-		sed -i -e s/"$i"/"$name_to"/g $zipdir/*.xml
+		sed -i -E s@"(or>)$i"@"\1$name_to"@g $zipdir/*.xml
 
 	done
 
@@ -108,9 +109,9 @@ function choose_subs { # FIXME: make the choice only from the authors_array arra
 
 		for d in $zipdir/*/ ; do
 
-		sed -i -e s/"[\"|\>]$name_from"/"\"$name_to"/g $d/*.xml ; done
+		sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
 
-		sed -i -e s/"$name_from"/"$name_to"/g $zipdir/*.xml
+    sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
 
 }
 
@@ -139,7 +140,7 @@ printf "\\nGood filetype OOXML "
 author_string="w:author=\"(.*?)\""
 
 else
-	 (printf "\\nNot an ODT or OOXML document " && exit 1)
+	 (printf "\\nNot an ODT nor an OOXML document, can't do " && exit 1)
 fi
 check_i
 
@@ -147,6 +148,7 @@ printf "\nThis is the list of current authors,
 now you will be asked to chose what you want to make of them: \n"
 
  unzip -oq "$1" -d $zipdir
+ check_i
 
  list_authors
 
@@ -212,7 +214,7 @@ done
 
       printf "\\n these current authors: \\n"
       list_authors
-      printf "\\n do you want to continue?" ; read -r -n1 choice
+      printf "\\n do you want to continue? (Y/N)" ; read -r -n1 choice
 
     done
 
@@ -224,21 +226,24 @@ done
 
 		# cp $1 $filename # needed to have correct structure FIXME
 
-		cd "$zipdir" || exit # in case cd fails
+		cd "$zipdir" || exit 1# in case cd fails
+    check_i
 
 		# touch "$curdir/$filename"
     rm "$curdir/$filename"
 
 
-    find -print | zip "$curdir/$filename" -@
+    find -print | zip "$curdir/$filename" -@ 1>/dev/null
 
-		cd "$curdir" || exit # in case it fails
+		cd "$curdir" || exit 1 # in case it fails
+    check_i
 
 echo "
 
 ${green}Script complete${normal}
 
-***WARNING***  Newfile is in $curdir/${bold}$filename${normal}
+***${bold}WARNING${normal}***  Newfile is in $curdir/${bold}$filename${normal}
 
-Please move it back to the original filename
+We are not going to replace the original file, we play it safe.
+
 "
