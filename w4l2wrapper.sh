@@ -39,6 +39,15 @@ do
 done
  }
 
+which v4l2-ctl > /dev/null
+
+# Check if program installed
+
+if [[ $? != 0 ]] ; then
+ printf "v4l2-ctl is not installed\n\n"
+ exit
+fi
+
 printf "Values are: \n"
 
 get_values
