@@ -7,6 +7,7 @@ normal=$(tput sgr0)
 bold=$(tput bold)
 
 declare -a controls_array=()
+declare -a controls_array_plus=()
 mapfile -t controls_array < <(v4l2-ctl -d /dev/video0 --list-ctrls | awk '{print $1}')
 
 function check_i {
@@ -30,13 +31,24 @@ function get_values {
 done
 }
 
- function set_values {
-select value in ${controls_array[@]}
-do
-  if [[ ${value} == "" ]] ; then
-    return
-  else
 
+function set_values {
+
+controls_array_plus=("${controls_array[@]}" "list" "quit")
+
+select value in ${controls_array_plus[@]}
+do
+if [[  ${value} == "quit" ]] ; then
+  printf "\\nThanks!\\n\\nWe have set the following values:\\n\\n"
+  return 1
+elif [[ ${value} == "list" ]] ; then
+  clear
+  printf "These are the current settings: \\n\\n"
+  get_values
+  printf "\\n\\n${bold}you can choose between:${normal} \\n\\n"
+  set_values
+  return 0
+else
   printf "admissible values for ${value} are: \\n ->"
   v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
   printf "insert the chosen value\\n:> "
@@ -44,8 +56,12 @@ do
   v4l2-ctl --set-ctrl=${value}=${myvalue} 2> /dev/null
   v4l2-ctl --get-ctrl=${value}
 
-    printf "\\nplease set another value or press ${bold}q to exit${normal}\\n"
-  fi
+  quit_no=("${#controls_array_plus[*]}")
+  list=$(( quit_no - 1 ))
+  printf "\\nplease set another value or insert ${quit_no}"
+  printf " to exit or ${list} to relist"
+
+fi
 done
  }
 
@@ -64,6 +80,8 @@ fi
 fi
 }
 
+clear
+
 checkinstalled
 
 printf "Values are: \n"
@@ -71,7 +89,13 @@ printf "Values are: \n"
 get_values
 
 printf "\\nset the value you want to set: \\n"
+
 set_values
+
+if [ $? = 6 ] ; then
+printf "\\n\\n${bold}you can choose between:${normal} \\n\\n"
+set_values
+fi
 
 get_values
 
