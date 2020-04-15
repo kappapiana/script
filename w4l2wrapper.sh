@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 
-red=$(tput setaf 1)
+deb_ver=`cat /etc/debian_version`
+# red=$(tput setaf 1)
 green=$(tput setaf 76)
 normal=$(tput sgr0)
 bold=$(tput bold)
 
 declare -a controls_array=()
 mapfile -t controls_array < <(v4l2-ctl -d /dev/video0 --list-ctrls | awk '{print $1}')
+
+function check_i {
+  if [ $? -eq 0 ]; then
+    i_ok
+  else
+    i_ko; read -r
+    exit
+  fi
+}
 
 function list_channels {
 
@@ -39,14 +49,22 @@ do
 done
  }
 
+
+function checkinstalled { # Checks if program installed
 which v4l2-ctl > /dev/null
-
-# Check if program installed
-
 if [[ $? != 0 ]] ; then
  printf "v4l2-ctl is not installed\n\n"
- exit
+ if [ -z $deb_ver ] ; then
+   i_ko
+   printf "\nThis ain't no Debian-based  -- You should install it by hand \n\n" ; exit 1
+ else
+ printf "\ndo you want to install it? (requires sudo powers!)\n\n"
+ sudo apt install -y v4l-utils v4l2loopback-utils
 fi
+fi
+}
+
+checkinstalled
 
 printf "Values are: \n"
 
