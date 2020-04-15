@@ -92,10 +92,6 @@ printf "\\nset the value you want to set: \\n"
 
 set_values
 
-if [ $? = 6 ] ; then
-printf "\\n\\n${bold}you can choose between:${normal} \\n\\n"
-set_values
-fi
 
 get_values
 
