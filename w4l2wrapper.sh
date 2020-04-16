@@ -64,13 +64,9 @@ elif [[ ${value} == "help" ]]; then
   v4l2-ctl -d /dev/video0 --list-ctrls-menus
   printf "\\n----------------------------------------------------------------\\n\\n"
 else
-  printf "admissible values for ${bold}${value}${normal} are: \\n ->"
-  v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
-  printf "insert the chosen value\\n:> "
-  read -r myvalue
-  v4l2-ctl --set-ctrl=${value}=${myvalue} 2> /dev/null
-  v4l2-ctl --get-ctrl=${value}
 
+  printf "\\nSorry, I do not understand.\\nAdmissible values for ${bold}${value}${normal} are: \\n ->"
+  v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
 
 fi
 done
