@@ -43,7 +43,7 @@ quit_no=("${#controls_array_plus[*]}")
 list_no=$(( quit_no - 1 ))
 help_no=$(( quit_no - 2 ))
 
-PS3="Choose 1 to ${#controls_array[*]} to modify actual values;"$'\n'"${quit_no} to exit, ${help_no} to help, ${list_no} to list"$'\n'"Make your choice: "
+PS3="Choose 1 to ${#controls_array[*]} to modify actual values;"$'\n'"${help_no} to help, ${list_no} to list, ${quit_no} to exit;"$'\n'"Make your choice: "
 
 
 select value in ${controls_array_plus[@]}
@@ -59,7 +59,10 @@ elif [[ ${value} == "list" ]] ; then
   set_values
   return 0
 elif [[ ${value} == "help" ]]; then
-  echo "what"
+
+  printf "\\n----------------------------------------------------------------\\n"
+  v4l2-ctl -d /dev/video0 --list-ctrls-menus
+  printf "\\n----------------------------------------------------------------\\n\\n"
 else
   printf "admissible values for ${bold}${value}${normal} are: \\n ->"
   v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
