@@ -65,7 +65,8 @@ elif [[ $(file --mime-type -b "$orig_filename") =~ application/vnd.openxmlformat
 
   for d in $content_dir ; do
 
-  sed -i -E s@"(\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml ; done
+  sed -i -E s@"(author=\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml 
+  sed -i -E s@"(By>)$name_from(<)"@"\1$name_to\2"@g $d/*.xml ; done
 
 else
   echo "WTF"
@@ -153,31 +154,6 @@ substitute_it
 
 fi
 done
-
-
-	# printf "Please insert the name you want to be replaced\\n:> "
-  #
-	# 	read -r name_from
-  #
-  #   until [[ " ${authors_array[*]} " =~  ${name_from}  ]]; do
-  #
-  #   printf "${name_from} is not a name of authors (${bold}case sensitive!${normal}), \\nplease choose one of "
-  #   printf "%s, " "${authors_array[@]}"
-  #   printf "\\n:> "
-  #
-  #   read -r name_from ; done
-  #
-	# printf "Now. please insert the name you want to be the one displayed in revisions \ninstead of ${name_from} \\n:> "
-  #
-	# 	read -r name_to
-  #
-  #   content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
-  #
-  #   for d in $content_dir ; do
-  #
-	# 	sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
-  #
-  #   sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
 
 }
 
