@@ -27,6 +27,7 @@ bold=$(tput bold)
 # instout="install_output.log"
 # insterr="install_error.log"
 declare -a authors_array=()
+declare -a authors_array_plus=()
 author_string=""
 
 i_ok() { printf "${green}✔${normal}\n"; }
@@ -89,31 +90,84 @@ function change_all {
 
 }
 
+# function change_name {
+#
+# echo "let's change"
+#   name_from="${value}"
+# echo "$value"
+#
+#   read -r name_to
+#
+#   content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
+#
+#   for d in $content_dir ; do
+#
+#   sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
+#
+#   sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
+#
+# }
+
 function choose_subs { # FIXME: make the choice only from the authors_array array
+authors_array_plus=("${authors_array[@]}" "list" "quit")
+quit_no=("${#authors_array_plus[*]}")
+list_no=$(( quit_no - 1 ))
 
-	printf "Please insert the name you want to be replaced\\n:> "
 
-		read -r name_from
+PS3="Choose 1 to ${#authors_array[*]} to modify actual values;"$'\n'"${help_no} to help, ${list_no} to list, ${quit_no} to exit;"$'\n'"Make your choice: "
 
-    until [[ " ${authors_array[*]} " =~  ${name_from}  ]]; do
+select value in "${authors_array_plus[@]}"
+do
+if [[  ${value} == "quit" ]] ; then
+  printf "\\nThanks! and goodbye\\n\\n"
+  break
+elif [[ ${value} == "list" ]] ; then
+  list_authors
+  choose_subs # restart from beginning to recreate menu. Cases change.
+  exit 0 # otherwise it returns to the function
+else
 
-    printf "${name_from} is not a name of authors (${bold}case sensitive!${normal}), \\nplease choose one of "
-    printf "%s, " "${authors_array[@]}"
-    printf "\\n:> "
+    name_from="${value}"
 
-    read -r name_from ; done
 
-	printf "Now. please insert the name you want to be the one displayed in revisions \ninstead of ${name_from} \\n:> "
-
-		read -r name_to
+printf "insert the name you want to ${bold}change ${value} into${normal}\\n:> "
+    read -r name_to
 
     content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
 
     for d in $content_dir ; do
 
-		sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
+    sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
 
     sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
+
+fi
+done
+
+
+	# printf "Please insert the name you want to be replaced\\n:> "
+  #
+	# 	read -r name_from
+  #
+  #   until [[ " ${authors_array[*]} " =~  ${name_from}  ]]; do
+  #
+  #   printf "${name_from} is not a name of authors (${bold}case sensitive!${normal}), \\nplease choose one of "
+  #   printf "%s, " "${authors_array[@]}"
+  #   printf "\\n:> "
+  #
+  #   read -r name_from ; done
+  #
+	# printf "Now. please insert the name you want to be the one displayed in revisions \ninstead of ${name_from} \\n:> "
+  #
+	# 	read -r name_to
+  #
+  #   content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
+  #
+  #   for d in $content_dir ; do
+  #
+	# 	sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
+  #
+  #   sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
 
 }
 
@@ -202,23 +256,23 @@ done
     printf "now the list of authors is: \\n"
 
     list_authors
-
-    until [[ $choice =~ [YyNn] ]]; do
-      printf "\nContinue with new changes? (Y/n) "; read -r -n1 choice
-    done
-
-    until [[ $choice =~ [Nn] ]]; do
-
-      printf "\\n these the authors you can change: \\n"
-      list_authors
-
-      choose_subs
-
-      printf "\\n these current authors: \\n"
-      list_authors
-      printf "\\n do you want to continue? (Y/N)" ; read -r -n1 choice
-
-    done
+    #
+    # until [[ $choice =~ [YyNn] ]]; do
+    #   printf "\nContinue with new changes? (Y/n) "; read -r -n1 choice
+    # done
+    #
+    # until [[ $choice =~ [Nn] ]]; do
+    #
+    #   printf "\\n these the authors you can change: \\n"
+    #   list_authors
+    #
+    #   choose_subs
+    #
+    #   printf "\\n these current authors: \\n"
+    #   list_authors
+    #   printf "\\n do you want to continue? (Y/N)" ; read -r -n1 choice
+    #
+    # done
 
   fi
 
