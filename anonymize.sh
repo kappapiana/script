@@ -78,8 +78,13 @@ function list_authors {
 mapfile -t authors_array < <(grep -hoP "$author_string" $zipdir -R | sort | uniq | sed -E "s@$author_string@\1@g")
 
 			echo "+----------------------------------------------------------------"
-			printf "authors are: "
-      printf "%s, " "${authors_array[@]}"
+if [[ ${#authors_array[*]} == 1 ]] ; then
+  printf "The author is: "
+  printf "%s " "${authors_array[@]}."
+else
+  printf "Authors are: "
+  printf "\"%s\" " "${authors_array[@]}"
+fi
       printf "\n"
 			echo "+----------------------------------------------------------------"
 }
