@@ -6,11 +6,11 @@ I have moved Anonymize to a separate repository. Please navigate to <https://git
 
 It's just a collection of random scripts, some can be useful, some are not.
 
-I invite you to check out  create_toolchain.sh (to create an environment to use the stuff in [Howdyadoc][3334e9b6]).
+I invite you to check out `create_toolchain.sh` (to create an environment to use the stuff in [Howdyadoc][3334e9b6]).
 
   [3334e9b6]: create_toolchain.sh "Howdyadoc"
 
-Also w4l2wrapper.sh could be useful: it allows interacting with your camera and exploring the settings you can change. Very useful if you know a bit of digital imaging, improvements could be substantial.
+Also `v4l2wrapper.sh` could be useful: it allows interacting with your camera and exploring the settings you can change. Very useful if you know a bit of digital imaging, improvements could be substantial. A wrapper to v4l2 (Video for Linux 2), a set of libraries to manage webcams.
 
 ## Future
 
