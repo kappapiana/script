@@ -137,7 +137,7 @@ printf "insert the name you want to ${bold}change ${value} into${normal}\\n:> "
 
     for d in $content_dir ; do
 
-    sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
+    sed -i -E s@"(\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml ; done
 
     sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
 
