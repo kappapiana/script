@@ -29,6 +29,7 @@ bold=$(tput bold)
 declare -a authors_array=()
 declare -a authors_array_plus=()
 author_string=""
+orig_filename="$1"
 
 i_ok() { printf "${green}✔${normal}\n"; }
 i_ko() { printf "${red}✖${normal}\n...exiting, check logs"; }
@@ -52,6 +53,24 @@ function check_i {
   fi
 }
 
+function substitute_it {
+
+  if  [[ $(file --mime-type -b "$orig_filename") =~ application/vnd.oasis.opendocument.text ]] ; then
+
+  sed -i -E s@"(or>)$name_from(<)"@"\1$name_to\2"@g $zipdir/*.xml
+
+elif [[ $(file --mime-type -b "$orig_filename") =~ application/vnd.openxmlformats-officedocument.wordprocessingml.document ]]; then
+
+  content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
+
+  for d in $content_dir ; do
+
+  sed -i -E s@"(\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml ; done
+
+else
+  echo "WTF"
+fi
+}
 
 function list_authors {
 
@@ -78,13 +97,10 @@ function change_all {
 
 	for i in "${authors_array[@]}" ; do
 
-		content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
+    echo "Changing $i in $name_to"
+    name_from="$i"
 
-    for d in $content_dir ; do
-
-			sed -i -E s@"(\")$i"@"\1$name_to"@g $d/*.xml ; done
-
-		sed -i -E s@"(or>)$i"@"\1$name_to"@g $zipdir/*.xml
+    substitute_it
 
 	done
 
@@ -133,13 +149,7 @@ else
 printf "insert the name you want to ${bold}change ${value} into${normal}\\n:> "
     read -r name_to
 
-    content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
-
-    for d in $content_dir ; do
-
-    sed -i -E s@"(\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml ; done
-
-    sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
+substitute_it
 
 fi
 done
