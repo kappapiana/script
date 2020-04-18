@@ -22,7 +22,7 @@ red=$(tput setaf 1)
 green=$(tput setaf 76)
 normal=$(tput sgr0)
 bold=$(tput bold)
-# underline=$(tput sgr 0 1)
+underline=$(tput sgr 0 1)
 
 # instout="install_output.log"
 # insterr="install_error.log"
@@ -65,8 +65,8 @@ elif [[ $(file --mime-type -b "$orig_filename") =~ application/vnd.openxmlformat
 
   for d in $content_dir ; do
 
-  sed -i -E s@"(author=\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml 
-  sed -i -E s@"(By>)$name_from(<)"@"\1$name_to\2"@g $d/*.xml ; done
+  sed -i -E s@"(author=\")$name_from(\")"@"\1$name_to\2"@g $d/*.xml
+  sed -i -E s@"(By>)$name_from(<)"@"\1$name_to\2"@g $d/*.xml ; done # caputure some metatags as well
 
 else
   echo "WTF"
@@ -88,9 +88,7 @@ function change_all {
 
 	printf "Please insert the name you want to be ${red}the only one${normal} displayed in revisions \n"
 
-	printf "instead of all these\\n"
-
-	list_authors
+	printf "instead of all the above\\n\\n${green}: > ${normal}"
 
 	read -r name_to
 
@@ -98,7 +96,6 @@ function change_all {
 
 	for i in "${authors_array[@]}" ; do
 
-    echo "Changing $i in $name_to"
     name_from="$i"
 
     substitute_it
@@ -107,31 +104,14 @@ function change_all {
 
 }
 
-# function change_name {
-#
-# echo "let's change"
-#   name_from="${value}"
-# echo "$value"
-#
-#   read -r name_to
-#
-#   content_dir=`find $zipdir -mindepth 2 -name '*.xml' | cut -f 1,2,3,4 -d /`
-#
-#   for d in $content_dir ; do
-#
-#   sed -i -E s@"(\")$name_from"@"\1$name_to"@g $d/*.xml ; done
-#
-#   sed -i -E s@"(or>)$name_from"@"\1$name_to"@g $zipdir/*.xml
-#
-# }
 
 function choose_subs { # FIXME: make the choice only from the authors_array array
 authors_array_plus=("${authors_array[@]}" "list" "quit")
 quit_no=("${#authors_array_plus[*]}")
 list_no=$(( quit_no - 1 ))
 
-
-PS3="Choose 1 to ${#authors_array[*]} to modify actual values;"$'\n'"${help_no} to help, ${list_no} to list, ${quit_no} to exit;"$'\n'"Make your choice: "
+printf "${underline}You have the following choices:${normal}\\n"
+PS3=""$'\n'"Choose 1 to ${#authors_array[*]} to modify actual values;"$'\n'"${list_no} to list, ${quit_no} to exit;"$'\n'"Make your choice: ${green}:>${normal} "
 
 select value in "${authors_array_plus[@]}"
 do
@@ -197,7 +177,6 @@ now you will be asked to chose what you want to make of them: \n"
 # ok, we're ready, let's meddle with the content!
 
 
-
 # Mock select menu
 
 printf "Please enter your choice: \\n\\n"
@@ -206,59 +185,35 @@ select opt in "${options[@]}"
 do
 	case $opt in
 		"Change all")
-		echo "you chose to change ${bold}all names${normal} with one name"
 		break
 		;;
 		"Change only one")
-		echo "you chose to change ${bold}only one${normal} name"
 		break
 		;;
 		*) echo "invalid option $REPLY";;
 	esac
 done
 
+printf "\\n"
 
 	# Now we ask for input
 
 
   if [ "$REPLY" = "1" ]; then
 
- 	list_authors
-
  	change_all
 
-	printf "now the list of authors is: \\n"
+	printf "\\nnow the list of authors is: \\n"
 
 	list_authors
 
   else
 
-    printf "Please insert the name you want to be ${red}changed from ${normal} in the following list \n"
+  choose_subs
 
-    list_authors
+  printf "\\nnow the list of authors is: \\n"
 
-    choose_subs
-
-    printf "now the list of authors is: \\n"
-
-    list_authors
-    #
-    # until [[ $choice =~ [YyNn] ]]; do
-    #   printf "\nContinue with new changes? (Y/n) "; read -r -n1 choice
-    # done
-    #
-    # until [[ $choice =~ [Nn] ]]; do
-    #
-    #   printf "\\n these the authors you can change: \\n"
-    #   list_authors
-    #
-    #   choose_subs
-    #
-    #   printf "\\n these current authors: \\n"
-    #   list_authors
-    #   printf "\\n do you want to continue? (Y/N)" ; read -r -n1 choice
-    #
-    # done
+  list_authors
 
   fi
 
@@ -270,6 +225,7 @@ done
 
 		cd "$zipdir" || exit 1# in case cd fails
     check_i
+    printf " move to zip directory; \\n\\n"
 
 		# touch "$curdir/$filename"
     rm "$curdir/$filename"
@@ -279,6 +235,7 @@ done
 
 		cd "$curdir" || exit 1 # in case it fails
     check_i
+    printf " recreated file from zip directory; \\n\\n"
 
 echo "
 
