@@ -17,7 +17,7 @@ underline=$(tput sgr 0 1)
 logfile="$PWD/create_toolchain.log"
 errorlogfile="$PWD/create_toolchain_error.log"
 
-exec 2>"$errorlogfile"
+exec 2>>"$errorlogfile"
 
 # =================================
 # Silly functions
