@@ -56,9 +56,11 @@ do
 		cd $f
 
 		last_update=$(stat -c %Y .git/FETCH_HEAD)
-		now=$(date +%s)
+		now_date=$(date +%s)
 
-			if [ $(( $now - $last_update 	)) -gt 3600 ] ; then
+		echo "$(( now_date - last_update ))"
+
+			if [ $(( now - last_update 	)) -gt 3600 ] ; then
 		  echo "fetching"
 			git fetch;
 		  else
