@@ -6,7 +6,7 @@ this script is only for git directories with repositories in subdirectories
 (git/dir/repo/)
 don't use if structure is only one level (git/repo)"
 
-
+last_update=0 #initialize variable
 maindir="$1"
 
 # No directory has been provided, use current
@@ -58,14 +58,12 @@ do
 		last_update=$(stat -c %Y .git/FETCH_HEAD)
 		now_date=$(date +%s)
 
-		echo "$(( now_date - last_update ))"
-
-			if [ $(( now - last_update 	)) -gt 3600 ] ; then
-		  echo "fetching"
+		if [ $(( now_date - last_update 	)) -gt 3600 ] ; then
+			echo "fetching"
 			git fetch;
-		  else
-		  echo "no need to fetch, too recently fetched, check locally"
-			fi
+		else
+			echo "no need to fetch, too recently fetched, check locally"
+		fi
 
 
 		# Check for modified files
