@@ -119,10 +119,10 @@ done
 
 printf "*------------------------------------*\\n"
 printf "   ${bold}please check these directories${normal}:\\n"
-printf "*------------------------------------*\\n\\n"
+printf "*------------------------------------*\\n"
 
 if [[ ! -z $changed_files_array ]]; then
-	printf "we have ${bold}modified${normal} files in: \\n\\n"
+	printf "\\nwe have ${bold}modified${normal} files in: \\n\\n"
 	printf  "%s \n" "${changed_files_array[@]}"
 fi
 
