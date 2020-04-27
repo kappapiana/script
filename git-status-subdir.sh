@@ -10,6 +10,7 @@ last_update=0 #initialize variable
 maindir="$1"
 declare -a changed_files_array=()
 declare -a untracked_files_array=()
+declare -a unpushed_commits_array=()
 normal=$(tput sgr0)
 bold=$(tput bold)
 
@@ -97,7 +98,16 @@ do
 			echo "Nothing to commit"
 		fi
 
+
+		if [ $(git status | grep "Your branch is ahead" -c) -ne 0 ]; then
+			echo -en "\033[0;31m"
+			echo "we have commits yet to be pushed"
+			echo -en "\033[0m"
+			unpushed_commits_array+=("${f}")
+		fi
+
 		cd ../
+
 	else
 		echo "Not a git repository"
 	fi
@@ -110,9 +120,13 @@ done
 printf "*------------------------------------*\\n"
 printf "   ${bold}please check these directories${normal}:\\n"
 printf "*------------------------------------*\\n\\n"
-printf "we have ${bold}modified${normal} files in: \\n"
+
+printf "we have ${bold}modified${normal} files in: \\n\\n"
 printf  "%s \n" "${changed_files_array[@]}"
 
-printf "\\nwe have ${bold}untracked${normal} files in: \\n"
+printf "\\nwe have ${bold}untracked${normal} files in: \\n\\n"
 printf  "%s \n" "${untracked_files_array[@]}"
-printf "\\n\\n* ------------------------------------ *\\n\\n"
+
+printf "\\nwe have ${bold}unpushed${normal} commits in: \\n\\n"
+printf  "%s \n" "${unpushed_commits_array[@]}"
+printf "\\n* ------------------------------------ *\\n\\n"
