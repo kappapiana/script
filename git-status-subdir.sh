@@ -8,6 +8,11 @@ don't use if structure is only one level (git/repo)"
 
 last_update=0 #initialize variable
 maindir="$1"
+declare -a changed_files_array=()
+declare -a untracked_files_array=()
+normal=$(tput sgr0)
+bold=$(tput bold)
+
 
 # No directory has been provided, use current
 if [ -z "$maindir" ]
@@ -73,6 +78,7 @@ do
 			echo -en "\033[0;31m"
 			echo "Modified files"
 			echo -en "\033[0m"
+			changed_files_array+=("${f}")
 		fi
 
 		# Check for untracked files
@@ -82,6 +88,7 @@ do
 			echo -en "\033[0;31m"
 			echo "Untracked files"
 			echo -en "\033[0m"
+			untracked_files_array+=("${f}")
 		fi
 
 		# Check if everything is peachy keen
@@ -99,3 +106,13 @@ do
 done
 
 done
+
+printf "*------------------------------------*\\n"
+printf "   ${bold}please check these directories${normal}:\\n"
+printf "*------------------------------------*\\n\\n"
+printf "we have ${bold}modified${normal} files in: \\n"
+printf  "%s \n" "${changed_files_array[@]}"
+
+printf "\\nwe have ${bold}untracked${normal} files in: \\n"
+printf  "%s \n" "${untracked_files_array[@]}"
+printf "\\n\\n* ------------------------------------ *\\n\\n"
