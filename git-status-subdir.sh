@@ -121,8 +121,10 @@ printf "*------------------------------------*\\n"
 printf "   ${bold}please check these directories${normal}:\\n"
 printf "*------------------------------------*\\n\\n"
 
+if [[ ! -z $changed_files_array ]]; then
 printf "we have ${bold}modified${normal} files in: \\n\\n"
 printf  "%s \n" "${changed_files_array[@]}"
+fi
 
 printf "\\nwe have ${bold}untracked${normal} files in: \\n\\n"
 printf  "%s \n" "${untracked_files_array[@]}"
