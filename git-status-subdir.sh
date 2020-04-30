@@ -11,6 +11,7 @@ maindir="$1"
 declare -a changed_files_array=()
 declare -a untracked_files_array=()
 declare -a unpushed_commits_array=()
+declare -a unpulled_commits_array=()
 normal=$(tput sgr0)
 bold=$(tput bold)
 
@@ -106,6 +107,13 @@ do
 			unpushed_commits_array+=("${f}")
 		fi
 
+		if [ $(git status | grep "Your branch is behind" -c) -ne 0 ]; then
+			echo -en "\033[0;31m"
+			echo "we have commits yet to be pulled"
+			echo -en "\033[0m"
+			unpulled_commits_array+=("${f}")
+		fi
+
 		cd ../
 
 	else
@@ -134,6 +142,11 @@ fi
 if [[ ! -z $unpushed_commits_array ]]; then
 	printf "\\nwe have ${bold}unpushed${normal} commits in: \\n\\n"
 	printf  "%s \n" "${unpushed_commits_array[@]}"
+fi
+
+if [[ ! -z $unpulled_commits_array ]]; then
+	printf "\\nwe have ${bold}unpulled${normal} commits in: \\n\\n"
+	printf  "%s \n" "${unpulled_commits_array[@]}"
 fi
 
 printf "\\n* ------------------------------------ *\\n\\n"
