@@ -6,8 +6,15 @@ this script is only for git directories with repositories in subdirectories
 (git/dir/repo/)
 don't use if structure is only one level (git/repo)"
 
-
+last_update=0 #initialize variable
 maindir="$1"
+declare -a changed_files_array=()
+declare -a untracked_files_array=()
+declare -a unpushed_commits_array=()
+declare -a unpulled_commits_array=()
+normal=$(tput sgr0)
+bold=$(tput bold)
+
 
 # No directory has been provided, use current
 if [ -z "$maindir" ]
@@ -56,14 +63,14 @@ do
 		cd $f
 
 		last_update=$(stat -c %Y .git/FETCH_HEAD)
-		now=$(date +%s)
+		now_date=$(date +%s)
 
-			if [ $(( $now - $last_update 	)) -gt 3600 ] ; then
-		  echo "fetching"
+		if [ $(( now_date - last_update 	)) -gt 3600 ] ; then
+			echo "fetching"
 			git fetch;
-		  else
-		  echo "no need to fetch, too recently fetched, check locally"
-			fi
+		else
+			echo "no need to fetch, too recently fetched, check locally"
+		fi
 
 
 		# Check for modified files
@@ -73,6 +80,7 @@ do
 			echo -en "\033[0;31m"
 			echo "Modified files"
 			echo -en "\033[0m"
+			changed_files_array+=("${f}")
 		fi
 
 		# Check for untracked files
@@ -82,6 +90,7 @@ do
 			echo -en "\033[0;31m"
 			echo "Untracked files"
 			echo -en "\033[0m"
+			untracked_files_array+=("${f}")
 		fi
 
 		# Check if everything is peachy keen
@@ -90,7 +99,23 @@ do
 			echo "Nothing to commit"
 		fi
 
+
+		if [ $(git status | grep "Your branch is ahead" -c) -ne 0 ]; then
+			echo -en "\033[0;31m"
+			echo "we have commits yet to be pushed"
+			echo -en "\033[0m"
+			unpushed_commits_array+=("${f}")
+		fi
+
+		if [ $(git status | grep "Your branch is behind" -c) -ne 0 ]; then
+			echo -en "\033[0;31m"
+			echo "we have commits yet to be pulled"
+			echo -en "\033[0m"
+			unpulled_commits_array+=("${f}")
+		fi
+
 		cd ../
+
 	else
 		echo "Not a git repository"
 	fi
@@ -99,3 +124,29 @@ do
 done
 
 done
+
+printf "*------------------------------------*\\n"
+printf "   ${bold}please check these directories${normal}:\\n"
+printf "*------------------------------------*\\n"
+
+if [[ ! -z $changed_files_array ]]; then
+	printf "\\nwe have ${bold}modified${normal} files in: \\n\\n"
+	printf  "%s \n" "${changed_files_array[@]}"
+fi
+
+if [[ ! -z $untracked_files_array ]]; then
+	printf "\\nwe have ${bold}untracked${normal} files in: \\n\\n"
+	printf  "%s \n" "${untracked_files_array[@]}"
+fi
+
+if [[ ! -z $unpushed_commits_array ]]; then
+	printf "\\nwe have ${bold}unpushed${normal} commits in: \\n\\n"
+	printf  "%s \n" "${unpushed_commits_array[@]}"
+fi
+
+if [[ ! -z $unpulled_commits_array ]]; then
+	printf "\\nwe have ${bold}unpulled${normal} commits in: \\n\\n"
+	printf  "%s \n" "${unpulled_commits_array[@]}"
+fi
+
+printf "\\n* ------------------------------------ *\\n\\n"
