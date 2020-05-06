@@ -94,10 +94,10 @@ pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | a
 if  [[ "$pandoc_ver" < $minversion ]] ; then
   if  [[ "$pandoc_cand" < $minversion ]] ; then
     printf "downloading pandoc-2.7.3..."
-    wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb 1>>$logfile 2>>$errorlogfile
+    wget https://github.com/jgm/pandoc/releases/download/2.7.3/pandoc-2.7.3-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "installing pandoc..."
-    sudo apt-get install -y ./pandoc-2.7.3-1-amd64.deb 1>>$logfile 2>>$errorlogfile
+    sudo apt-get install -y ./pandoc-2.7.3-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "We have installed Pandoc to $minversion from github (not repositories)"
   else
@@ -125,24 +125,24 @@ fi
 if [ $update_pandoc = "true" ] ; then
   if [ $update_apt = "true" ]; then
     printf "running apt update..."
-    sudo apt update 1>>$logfile 2>>$errorlogfile
+    sudo apt update 1>>"$logfile" 2>>"$errorlogfile"
     check_i
-    update_apt="false" 
+    update_apt="false"
   fi
   printf "updating pandoc from repository..."
-   sudo apt-get install -y pandoc 1>>$logfile 2>>$errorlogfile
+   sudo apt-get install -y pandoc 1>>"$logfile" 2>>"$errorlogfile"
 fi
 
 # test if mustache is installed, if not, install ruby-mustache from repository
 
-if [[ -z "$(which mustache)" ]]; then 
+if [[ -z "$(which mustache)" ]]; then
   if [ $update_apt = "true" ]; then
     printf "running apt update..."
-    sudo apt update 1>>$logfile 2>>$errorlogfile
+    sudo apt update 1>>"$logfile" 2>>"$errorlogfile"
     check_i
   fi
   printf "installing ruby-mustache..."
-  sudo apt-get install -y ruby-mustache 1>>$logfile 2>>$errorlogfile
+  sudo apt-get install -y ruby-mustache 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
@@ -150,52 +150,52 @@ fi
 
 if [ ! -f $filtersdir/crossref-ordered-list.lua ]; then
   printf "downloading and installing pandoc filter 'crossref-ordered-list.lua'..."
-  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/crossref-ordered-list.lua 1>>$logfile 2>>$errorlogfile
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/crossref-ordered-list.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $filtersdir/inline-headers.lua ]; then
   printf "downloading and installing pandoc filter 'inline-headers.lua'..."
-  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/inline-headers.lua 1>>$logfile 2>>$errorlogfile
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/inline-headers.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $filtersdir/secgroups.lua ]; then
   printf "downloading and installing pandoc filter 'secgroups.lua'..."
-  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/secgroups.lua 1>>$logfile 2>>$errorlogfile
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/secgroups.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $installdir/convert-html2docx-comments.pl ]; then
   printf "downloading and installing script 'convert-html2docx-comments.pl'..."
-  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/convert-html2docx-comments.pl 1>>$logfile 2>>$errorlogfile
+  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/convert-html2docx-comments.pl 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $installdir/howdyadoc-legal-convert ]; then
   printf "dowloading script 'howdyadoc-legal-convert'..."
-  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-convert 1>>$logfile 2>>$errorlogfile
+  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-convert 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $installdir/howdyadoc-legal-preview ]; then
   printf "downloading and installing script 'howdyadoc-legal-preview'..."
-  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-preview 1>>$logfile 2>>$errorlogfile
+  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-preview 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $installdir/pp-include.pl ]; then
-  print "downloading and installing script 'pp-include.pl'..." 
-  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/pp-include.pl 1>>$logfile 2>>$errorlogfile
+  print "downloading and installing script 'pp-include.pl'..."
+  sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/pp-include.pl 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $installdir/pandoc-crossref ]; then
   print "downloading pandoc filter 'pandoc-crossref'..."
-  wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz 1>>$logfile 2>>$errorlogfile
+  wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz 1>>"$logfile" 2>>"$errorlogfile"
   check_i
   print "installing 'pandoc-crossref'..."
-  tar -xf $tmpdir/linux-pandoc_2_7_3.tar.gz 1>>$logfile 2>>$errorlogfile && sudo mv $tmpdir/pandoc-crossref $installdir 1>>$logfile 2>>$errorlogfile
+  tar -xf $tmpdir/linux-pandoc_2_7_3.tar.gz 1>>"$logfile" 2>>"$errorlogfile" && sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
@@ -213,16 +213,16 @@ until [[ "$configure_atom" =~ [YyNn] ]]; do
 done
 if [[ "$configure_atom" =~ [Yy] ]]; then
   printf "\nInstalling git and pip3..."
-  sudo apt-get install -y git python3-pip 1>>$logfile 2>>$errorlogfile
+  sudo apt-get install -y git python3-pip 1>>"$logfile" 2>>"$errorlogfile"
   check_i
   which atom >/dev/null 2>&1 && atom_installed="true"
   if [[ -z "$atom_installed" ]]; then
     printf "downloading atom..."
     cd $tmpdir
-    wget -O atom-amd64.deb https://atom.io/download/deb 1>>$logfile 2>>$errorlogfile
+    wget -O atom-amd64.deb https://atom.io/download/deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "installing atom..."
-    sudo apt-get install -y ./atom-amd64.deb 1>>$logfile 2>>$errorlogfile
+    sudo apt-get install -y ./atom-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
   fi
   if [ ! -f ~/.atom/config.cson ]; then
@@ -239,24 +239,24 @@ if [[ "$configure_atom" =~ [Yy] ]]; then
     printf "downloading howdyadoc fork of 'inline-git-diff' package..."
     mkdir ~/.atom/packages >/dev/null 2>&1
     cd ~/.atom/packages
-    git clone https://github.com/alpianon/atom-inline-git-diff.git 1>>$logfile 2>>$errorlogfile
+    git clone https://github.com/alpianon/atom-inline-git-diff.git 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     mv atom-inline-git-diff inline-git-diff
     cd inline-git-diff
     printf "installing downloaded package..."
-    apm install 1>>$logfile 2>>$errorlogfile
+    apm install 1>>"$logfile" 2>>"$errorlogfile"
     check_i
   fi
   essential_packages=(language-pfm markdown-table-editor markdown-writer platformio-ide-terminal markdown-preview-enhanced)
   for pkg in ${essential_packages[@]}; do
     if [ -z "`echo "$installed_packages" | grep $pkg`" ]; then
       printf "installing atom package '$pkg'..."
-      apm install $pkg 1>>$logfile 2>>$errorlogfile
+      apm install $pkg 1>>"$logfile" 2>>"$errorlogfile"
       check_i
     fi
   done
   printf "installing cson for python..."
-  sudo pip3 install cson 1>>$logfile 2>>$errorlogfile
+  sudo pip3 install cson 1>>"$logfile" 2>>"$errorlogfile"
   check_i
   printf "configuring markdown-preview-enhanced to use howdyadoc..."
   cd ~/.atom
@@ -279,7 +279,7 @@ EOT
     for pkg in ${recommended_packages[@]}; do
       if [ -z "`echo "$installed_packages" | grep $pkg`" ]; then
         printf "installing atom package '$pkg'..."
-        apm install $pkg 1>>$logfile 2>>$errorlogfile
+        apm install $pkg 1>>"$logfile" 2>>"$errorlogfile"
         check_i
       fi
     done
