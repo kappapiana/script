@@ -99,19 +99,20 @@ do
 			echo "Nothing to commit"
 		fi
 
-
 		if [ $(git status | grep "Your branch is ahead" -c) -ne 0 ]; then
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/')
 			echo -en "\033[0;31m"
-			echo "we have commits yet to be pushed"
+			echo "we have commits yet to be pushed in ${curbranch}"
 			echo -en "\033[0m"
-			unpushed_commits_array+=("${f}")
+			unpushed_commits_array+=("${f} ${curbranch}")
 		fi
 
 		if [ $(git status | grep "Your branch is behind" -c) -ne 0 ]; then
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/')
 			echo -en "\033[0;31m"
-			echo "we have commits yet to be pulled"
+			echo "we have commits yet to be pulled in ${curbranch}"
 			echo -en "\033[0m"
-			unpulled_commits_array+=("${f}")
+			unpulled_commits_array+=("${f} ${curbranch}")
 		fi
 
 		cd ../
