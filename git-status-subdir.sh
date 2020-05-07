@@ -77,20 +77,22 @@ do
 		if [ $(git status | grep modified -c) -ne 0 ]
 		then
 			mod=1
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
 			echo -en "\033[0;31m"
 			echo "Modified files"
 			echo -en "\033[0m"
-			changed_files_array+=("${f}")
+			changed_files_array+=("${f} ${curbranch}")
 		fi
 
 		# Check for untracked files
 		if [ $(git status | grep Untracked -c) -ne 0 ]
 		then
 			mod=1
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
 			echo -en "\033[0;31m"
 			echo "Untracked files"
 			echo -en "\033[0m"
-			untracked_files_array+=("${f}")
+			untracked_files_array+=("${f} ${curbranch}")
 		fi
 
 		# Check if everything is peachy keen
@@ -100,7 +102,7 @@ do
 		fi
 
 		if [ $(git status | grep "Your branch is ahead" -c) -ne 0 ]; then
-			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/')
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
 			echo -en "\033[0;31m"
 			echo "we have commits yet to be pushed in ${curbranch}"
 			echo -en "\033[0m"
@@ -108,7 +110,7 @@ do
 		fi
 
 		if [ $(git status | grep "Your branch is behind" -c) -ne 0 ]; then
-			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/')
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
 			echo -en "\033[0;31m"
 			echo "we have commits yet to be pulled in ${curbranch}"
 			echo -en "\033[0m"
