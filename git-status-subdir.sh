@@ -19,7 +19,7 @@ bold=$(tput bold)
 # No directory has been provided, use current
 if [ -z "$maindir" ]
 then
-	maindir="`pwd`"
+	maindir=$(pwd)
 fi
 
 # Make sure directory ends with "/"
