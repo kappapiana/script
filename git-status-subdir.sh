@@ -12,6 +12,7 @@ declare -a changed_files_array=()
 declare -a untracked_files_array=()
 declare -a unpushed_commits_array=()
 declare -a unpulled_commits_array=()
+declare -a newbranch_array=()
 normal=$(tput sgr0)
 bold=$(tput bold)
 
@@ -117,6 +118,15 @@ do
 			unpulled_commits_array+=("${f} ${curbranch}")
 		fi
 
+		if [ $(git status | grep "\[new branch\]" -c) -ne 0 ]; then
+			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
+			echo -en "\033[0;31m"
+			echo "we have a new branch in ${curbranch}"
+			echo -en "\033[0m"
+			newbranch_array+=("${f} ${curbranch}")
+		fi
+
+
 		cd ../
 
 	else
@@ -150,6 +160,11 @@ fi
 if [[ ! -z $unpulled_commits_array ]]; then
 	printf "\\nwe have ${bold}unpulled${normal} commits in: \\n\\n"
 	printf  "%s \n" "${unpulled_commits_array[@]}"
+fi
+
+if [[ ! -z $newbranch_array ]]; then
+	printf "\\nwe have ${bold}a new branch${normal} in: \\n\\n"
+	printf  "%s \n" "${newbranch_array[@]}"
 fi
 
 printf "\\n* ------------------------------------ *\\n\\n"
