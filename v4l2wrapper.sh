@@ -48,6 +48,7 @@ PS3="Choose 1 to ${#controls_array[*]} to modify actual values;"$'\n'"${help_no}
 
 select value in ${controls_array_plus[@]}
 do
+
 if [[  ${value} == "quit" ]] ; then
   printf "\\nThanks!\\n\\n${green} We have set the following values${normal}:\\n\\n"
   return 1
@@ -58,15 +59,25 @@ elif [[ ${value} == "list" ]] ; then
   printf "\\n\\n${bold}you can choose between:${normal} \\n\\n"
   set_values
   return 0
+
 elif [[ ${value} == "help" ]]; then
 
   printf "\\n----------------------------------------------------------------\\n"
   v4l2-ctl -d /dev/video0 --list-ctrls-menus
   printf "\\n----------------------------------------------------------------\\n\\n"
+
+elif [[ $REPLY < 9 ]]; then
+
+  printf "admissible values for ${bold}${value}${normal} are: \\n ->"
+  v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
+  printf "insert the chosen value\\n:> "
+  read -r myvalue
+  v4l2-ctl --set-ctrl=${value}=${myvalue} 2> /dev/null
+  v4l2-ctl --get-ctrl=${value}
+
 else
 
-  printf "\\nSorry, I do not understand.\\nAdmissible values for ${bold}${value}${normal} are: \\n ->"
-  v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
+  printf "\\nSorry, I do not understand.\\n${bold}Numeric${normal} entry is expected\\n\\n"
 
 fi
 done
