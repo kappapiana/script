@@ -192,10 +192,10 @@ fi
 
 if [ ! -f $installdir/pandoc-crossref ]; then
   print "downloading pandoc filter 'pandoc-crossref'..."
-  wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.4.1a/linux-pandoc_2_7_3.tar.gz 1>>"$logfile" 2>>"$errorlogfile"
+  wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.8.1/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
   check_i
   print "installing 'pandoc-crossref'..."
-  tar -xf $tmpdir/linux-pandoc_2_7_3.tar.gz 1>>"$logfile" 2>>"$errorlogfile" && sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
+  tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile" && sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
