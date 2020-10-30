@@ -97,7 +97,7 @@ if  [[ "$pandoc_ver" < $minversion ]] ; then
     wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "installing pandoc..."
-    sudo apt-get install -y ./pandoc-2.7.3-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
+    sudo apt-get install -y ./pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "We have installed Pandoc to $minversion from github (not repositories)"
   else
