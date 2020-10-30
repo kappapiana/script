@@ -93,7 +93,7 @@ pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | a
 
 if  [[ "$pandoc_ver" < $minversion ]] ; then
   if  [[ "$pandoc_cand" < $minversion ]] ; then
-    printf "downloading pandoc-2.7.3..."
+    printf "downloading pandoc-2.10.1..."
     wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "installing pandoc..."
