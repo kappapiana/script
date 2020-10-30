@@ -7,7 +7,7 @@
 filtersdir=~/.pandoc/filters # lua filters will go here (user only)
 installdir=/usr/local/bin # binaries will go here (system-wide)
 deb_ver=`cat /etc/debian_version` # find out which Debian are we on
-minversion="2.9" #Minimum version for Pandoc
+minversion=10 #Minimum minor version for Pandoc
 update_pandoc="false" # inizialize variable to default value
 red=$(tput setaf 1)
 green=$(tput setaf 76)
@@ -84,15 +84,18 @@ check_i
 # Debian packages:
 
 # check what pandoc version do we have installed and available
-pandoc_ver=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
-pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+pandoc_ver=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
+pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 [[ $pandoc_ver =~ ^.*none.*$ ]] && pandoc_ver=0 # if no version installed, we need a number
+
+echo "$pandoc_ver"
+echo "$pandoc_cand"
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
 
-if  [[ "$pandoc_ver" < $minversion ]] ; then
-  if  [[ "$pandoc_cand" < $minversion ]] ; then
+if  [[ "$pandoc_ver" < "$minversion" ]] ; then
+  if  [[ "$pandoc_cand" < "$minversion" ]] ; then
     printf "downloading pandoc-2.10.1..."
     wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
