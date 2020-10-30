@@ -88,9 +88,6 @@ pandoc_ver=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | aw
 pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 [[ $pandoc_ver =~ ^.*none.*$ ]] && pandoc_ver=0 # if no version installed, we need a number
 
-echo "$pandoc_ver"
-echo "$pandoc_cand"
-
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
 
