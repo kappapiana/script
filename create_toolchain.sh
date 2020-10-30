@@ -148,6 +148,8 @@ fi
 
 # Now we donwload a bunch of filters and stuff if missing
 
+# Lua
+
 if [ ! -f $filtersdir/crossref-ordered-list.lua ]; then
   printf "downloading and installing pandoc filter 'crossref-ordered-list.lua'..."
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/crossref-ordered-list.lua 1>>"$logfile" 2>>"$errorlogfile"
@@ -165,6 +167,21 @@ if [ ! -f $filtersdir/secgroups.lua ]; then
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/secgroups.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
+
+if [ ! -f $filtersdir/pagebreak.lua ]; then
+  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/pagebreak.lua 1>>"$logfile" 2>>"$errorlogfile"
+  check_i
+fi
+
+if [ ! -f $filtersdir/smartdivs.lua ]; then
+  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/smartdivs.lua 1>>"$logfile" 2>>"$errorlogfile"
+  check_i
+fi
+
+
+# PERL, Python
 
 if [ ! -f $installdir/convert-html2docx-comments.pl ]; then
   printf "downloading and installing script 'convert-html2docx-comments.pl'..."
