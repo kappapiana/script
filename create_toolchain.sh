@@ -7,7 +7,7 @@
 filtersdir=~/.pandoc/filters # lua filters will go here (user only)
 installdir=/usr/local/bin # binaries will go here (system-wide)
 deb_ver=`cat /etc/debian_version` # find out which Debian are we on
-minversion="2.9" #Minimum version for Pandoc
+minversion=10 #Minimum minor version for Pandoc
 update_pandoc="false" # inizialize variable to default value
 red=$(tput setaf 1)
 green=$(tput setaf 76)
@@ -84,20 +84,23 @@ check_i
 # Debian packages:
 
 # check what pandoc version do we have installed and available
-pandoc_ver=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
-pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+pandoc_ver=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
+pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 [[ $pandoc_ver =~ ^.*none.*$ ]] && pandoc_ver=0 # if no version installed, we need a number
+
+echo "$pandoc_ver"
+echo "$pandoc_cand"
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
 
-if  [[ "$pandoc_ver" < $minversion ]] ; then
-  if  [[ "$pandoc_cand" < $minversion ]] ; then
-    printf "downloading pandoc-2.7.3..."
+if  [[ "$pandoc_ver" < "$minversion" ]] ; then
+  if  [[ "$pandoc_cand" < "$minversion" ]] ; then
+    printf "downloading pandoc-2.10.1..."
     wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "installing pandoc..."
-    sudo apt-get install -y ./pandoc-2.7.3-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
+    sudo apt-get install -y ./pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "We have installed Pandoc to $minversion from github (not repositories)"
   else
@@ -148,6 +151,8 @@ fi
 
 # Now we donwload a bunch of filters and stuff if missing
 
+# Lua
+
 if [ ! -f $filtersdir/crossref-ordered-list.lua ]; then
   printf "downloading and installing pandoc filter 'crossref-ordered-list.lua'..."
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/crossref-ordered-list.lua 1>>"$logfile" 2>>"$errorlogfile"
@@ -165,6 +170,21 @@ if [ ! -f $filtersdir/secgroups.lua ]; then
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/secgroups.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
+
+if [ ! -f $filtersdir/pagebreak.lua ]; then
+  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/pagebreak.lua 1>>"$logfile" 2>>"$errorlogfile"
+  check_i
+fi
+
+if [ ! -f $filtersdir/smartdivs.lua ]; then
+  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/smartdivs.lua 1>>"$logfile" 2>>"$errorlogfile"
+  check_i
+fi
+
+
+# PERL, Python
 
 if [ ! -f $installdir/convert-html2docx-comments.pl ]; then
   printf "downloading and installing script 'convert-html2docx-comments.pl'..."
