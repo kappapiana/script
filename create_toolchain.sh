@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 
 # =================================
+# Pandoc version
+# =================================
+
+minversion=10 #Minimum minor version for Pandoc
+curversion_pandoc=2.10.1 #current version  of Pandoc (= directory) available from the website
+package_pandoc=pandoc-2.10.1-1-amd64.deb #corresponding package
+
+# =================================
 # Set Variables
 # =================================
 
 filtersdir=~/.pandoc/filters # lua filters will go here (user only)
 installdir=/usr/local/bin # binaries will go here (system-wide)
 deb_ver=`cat /etc/debian_version` # find out which Debian are we on
-minversion=10 #Minimum minor version for Pandoc
 update_pandoc="false" # inizialize variable to default value
 red=$(tput setaf 1)
 green=$(tput setaf 76)
@@ -18,6 +25,7 @@ logfile="$PWD/create_toolchain.log"
 errorlogfile="$PWD/create_toolchain_error.log"
 
 exec 2>>"$errorlogfile"
+
 
 # =================================
 # Silly functions
@@ -84,27 +92,27 @@ check_i
 # Debian packages:
 
 # check what pandoc version do we have installed and available
-pandoc_ver=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
+pandoc_installed=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
-[[ $pandoc_ver =~ ^.*none.*$ ]] && pandoc_ver=0 # if no version installed, we need a number
+[[ $pandoc_installed =~ ^.*none.*$ ]] && pandoc_installed=0 # if no version installed, we need a number, zero is low enough
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
 
-if  [[ "$pandoc_ver" < "$minversion" ]] ; then
+if  [[ "$pandoc_installed" < "$minversion" ]] ; then
   if  [[ "$pandoc_cand" < "$minversion" ]] ; then
-    printf "downloading pandoc-2.10.1..."
-    wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
+    printf "downloading pandoc-$curversion_pandoc..."
+    wget https://github.com/jgm/pandoc/releases/download/$curversion_pandoc/$package_pandoc 1>>"$logfile" 2>>"$errorlogfile"
     check_i
     printf "installing pandoc..."
-    sudo apt-get install -y ./pandoc-2.10.1-1-amd64.deb 1>>"$logfile" 2>>"$errorlogfile"
+    sudo apt-get install -y ./$package_pandoc 1>>"$logfile" 2>>"$errorlogfile"
     check_i
-    printf "We have installed Pandoc to $minversion from github (not repositories)"
+    printf "We have installed Pandoc to $curversion_pandoc from github (not repositories)"
   else
     update_pandoc="true"
   fi
 else
-  printf "Pandoc is already up to the needed version "
+  printf "Pandoc is already up to the needed version ($minversion)"
   i_ok
   update_pandoc="false"
 fi
@@ -123,11 +131,11 @@ fi
 # If we need to install or update pandoc from repository, we do it now
 
 if [ $update_pandoc = "true" ] ; then
-  if [ $update_apt = "true" ]; then
+  if [ $update_apt = "true" ]; then # but update apt cache first
     printf "running apt update..."
     sudo apt update 1>>"$logfile" 2>>"$errorlogfile"
     check_i
-    update_apt="false"
+    update_apt="false" # cache updated, set not to update it any more
   fi
   printf "updating pandoc from repository..."
    sudo apt-get install -y pandoc 1>>"$logfile" 2>>"$errorlogfile"
