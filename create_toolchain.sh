@@ -190,37 +190,63 @@ fi
 
 # PERL, Python
 
-if [ ! -f $installdir/convert-html2docx-comments.pl ]; then
+# uncomment else if you want to print out what stuff has been installed
+# fixme in the future we'll check it to update version
+# by now, only manually
+
+
+install_bin=convert-html2docx-comments.pl
+
+if [ ! -f $installdir/$install_bin ]; then
   printf "downloading and installing script 'convert-html2docx-comments.pl'..."
   sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/convert-html2docx-comments.pl 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+# else
+#  printf "\n$install_bin has already been installed in $installdir/$install_bin\n"
 fi
 
-if [ ! -f $installdir/howdyadoc-legal-convert ]; then
+
+install_bin=howdyadoc-legal-convert
+
+if [ ! -f $installdir/$install_bin ]; then
   printf "dowloading script 'howdyadoc-legal-convert'..."
   sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-convert 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+# else
+#  printf "\n$install_bin has already been installed in $installdir/$install_bin\n"
 fi
 
-if [ ! -f $installdir/howdyadoc-legal-preview ]; then
+install_bin=howdyadoc-legal-preview
+
+if [ ! -f $installdir/$install_bin ]; then
   printf "downloading and installing script 'howdyadoc-legal-preview'..."
   sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/howdyadoc-legal-preview 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+# else
+#  printf "\n$install_bin has already been installed in $installdir/$install_bin\n"
 fi
 
-if [ ! -f $installdir/pp-include.pl ]; then
+install_bin=pp-include.pl
+
+if [ ! -f $installdir/$install_bin ]; then
   print "downloading and installing script 'pp-include.pl'..."
   sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/pp-include.pl 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+# else
+#  printf "\n$install_bin has already been installed in $installdir/$install_bin\n"
 fi
 
-if [ ! -f $installdir/pandoc-crossref ]; then
+install_bin=pandoc-crossref
+
+if [ ! -f $installdir/$install_bin ]; then
   print "downloading pandoc filter 'pandoc-crossref'..."
   wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.8.1/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
   check_i
   print "installing 'pandoc-crossref'..."
   tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile" && sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+# else
+#  printf "\n$install_bin has already been installed in $installdir/$install_bin\n"
 fi
 
 # make stuff executable in the install directory
