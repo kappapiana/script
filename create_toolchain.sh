@@ -89,7 +89,22 @@ tmpdir=$(mktemp -d)
 cd $tmpdir
 check_i
 
+# ------------------------
 # Debian packages:
+# ------------------------
+
+# check if apt cache is sufficiently recent or has it been ever updated, else, skip
+
+[ -f /var/cache/apt/pkgcache.bin ] && last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin) || last_update=0
+now=$(date +%s)
+[ -f /var/cache/apt/pkgcache.bin ] && actualsize=$(du -k /var/cache/apt/pkgcache.bin | cut -f 1) || actualsize=0 # if size too small, need to force update: check size
+
+if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ] ; then
+  printf "apt cache too old, running apt update..."
+  sudo apt update 1>>"$logfile" 2>>"$errorlogfile"
+  check_i
+  update_apt="false" # cache updated, set not to update it any more
+fi
 
 # check what pandoc version do we have installed and available
 pandoc_installed=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
@@ -117,26 +132,10 @@ else
   update_pandoc="false"
 fi
 
-# check if apt cache is sufficiently recent or has it been ever updated, else, skip
-
-[ -f /var/cache/apt/pkgcache.bin ] && last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin) || last_update=0
-now=$(date +%s)
-[ -f /var/cache/apt/pkgcache.bin ] && actualsize=$(du -k /var/cache/apt/pkgcache.bin | cut -f 1) || actualsize=0 # if size too small, need to force update: check size
-
-if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ] ; then
-  update_apt="true" ; else
-  update_apt="false"
-fi
 
 # If we need to install or update pandoc from repository, we do it now
 
 if [ $update_pandoc = "true" ] ; then
-  if [ $update_apt = "true" ]; then # but update apt cache first
-    printf "running apt update..."
-    sudo apt update 1>>"$logfile" 2>>"$errorlogfile"
-    check_i
-    update_apt="false" # cache updated, set not to update it any more
-  fi
   printf "updating pandoc from repository..."
    sudo apt-get install -y pandoc 1>>"$logfile" 2>>"$errorlogfile"
 fi
