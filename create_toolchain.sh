@@ -14,7 +14,7 @@ package_pandoc=pandoc-2.10.1-1-amd64.deb #corresponding package
 
 filtersdir=~/.pandoc/filters # lua filters will go here (user only)
 installdir=/usr/local/bin # binaries will go here (system-wide)
-deb_ver=`cat /etc/debian_version` # find out which Debian are we on
+deb_ver=`cat /etc/debian_version` # find out which Debian we are on
 update_pandoc="false" # inizialize variable to default value
 red=$(tput setaf 1)
 green=$(tput setaf 76)
@@ -55,7 +55,12 @@ if [[ $EUID == 0 ]]; then
   Sorry, this script ${red} must NOT${normal} be run as root:
   please log in as normal user or avoid using sudo.
   You will be asked to authenticate for sudo, if needed\n"
-   exit 1
+
+  rm $errorlogfile  # error log is created as root,
+                    # removed lest getting permission error installing as
+                    # regular user
+
+  exit 1
 fi
 
 # Check if Debian
