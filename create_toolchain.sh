@@ -109,13 +109,22 @@ fi
 # check what pandoc version do we have installed and available
 pandoc_installed=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
-[[ $pandoc_installed =~ ^.*none.*$ ]] && pandoc_installed=0 # if no version installed, we need a number, zero is low enough
+
+echo "installed pandoc version ${pandoc_installed}"
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
 
-if  [[ "$pandoc_installed" < "$minversion" ]] ; then
-  if  [[ "$pandoc_cand" < "$minversion" ]] ; then
+
+if [[ -z $pandoc_installed ]]; then
+  pandoc_installed=0 # 0 if none installed...
+  echo "Pandoc is not installed yet"
+fi
+
+echo "installed ver. $pandoc_installed, available $pandoc_cand, required min $minversion"
+
+if  [ $pandoc_installed -lt $minversion ] ; then
+  if  [ $pandoc_cand -lt $minversion ] ; then
     printf "downloading pandoc-$curversion_pandoc..."
     wget https://github.com/jgm/pandoc/releases/download/$curversion_pandoc/$package_pandoc 1>>"$logfile" 2>>"$errorlogfile"
     check_i
@@ -127,7 +136,7 @@ if  [[ "$pandoc_installed" < "$minversion" ]] ; then
     update_pandoc="true"
   fi
 else
-  printf "Pandoc is already up to the needed version ($minversion)"
+  printf "Pandoc is already up to the needed version ($minversion) "
   i_ok
   update_pandoc="false"
 fi
