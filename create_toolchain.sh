@@ -190,13 +190,13 @@ if [ ! -f $filtersdir/secgroups.lua ]; then
 fi
 
 if [ ! -f $filtersdir/pagebreak.lua ]; then
-  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  printf "downloading and installing pandoc filter 'pagebreak.lua'..."
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/pagebreak.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $filtersdir/smartdivs.lua ]; then
-  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  printf "downloading and installing pandoc filter 'smartdivs.lua'..."
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/smartdivs.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
