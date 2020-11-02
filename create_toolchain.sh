@@ -233,8 +233,24 @@ if [ ! -f $installdir/pandoc-crossref ]; then
   wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.8.1/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
   check_i
   print "installing 'pandoc-crossref'..."
-  tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile" && sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
+  tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
+    pandoc-crossref-ver=$($tmpdir/pandoc-crossref -v | )
+
+# checking if Pandoc version matches the one with which pandoc-crossref was built
+
+    pandoc_crossref_ver=$(pandoc-crossref -v | grep -oP "Pandoc .*?," | awk '{print $2}' | cut -d , -f 1| cut -d v -f2 |  awk 'BEGIN { FS = "." } ; {print $1 "." $2}')
+
+    if [[ $pandoc_installed != $pandoc_crossref_ver ]] ; then
+      printf "\n${red}warning${normal}: pandoc-crossref was built with Pandoc v${pandoc_crossref_ver},
+             but v${pandoc_installed} is installed\n
+             this could lead to unexpected results\n\n"
+    else
+      printf "OK\n"
+    fi
+
+  sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+
 fi
 
 # make stuff executable in the install directory
