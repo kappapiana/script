@@ -245,7 +245,7 @@ if [ ! -f $installdir/pandoc-crossref ]; then
     if [[ $pandoc_installed_full != $pandoc_crossref_ver ]] ; then
 
       printf "\n${red}warning${normal}: pandoc-crossref was built with Pandoc v${pandoc_crossref_ver}\n"
-      printf "         but v${pandoc_installed} is installed\n"
+      printf "         but v${pandoc_installed_full} is installed\n"
       printf "         this could lead to unexpected results\n"
       printf "         please check \n\n"
 
