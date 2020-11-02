@@ -313,7 +313,7 @@ EOT
     read install_recommended
   done
   if [[ "$install_recommended" =~ [Yy] ]]; then
-    recommended_packages=(atom-overtype-mode change-case comment git-history magic-reflow open-file random split-diff todo-show)
+    recommended_packages=(atom-overtype-mode change-case comment git-history magic-reflow open-file random split-diff todo-show sync-settings)
     for pkg in ${recommended_packages[@]}; do
       if [ -z "`echo "$installed_packages" | grep $pkg`" ]; then
         printf "installing atom package '$pkg'..."
