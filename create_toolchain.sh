@@ -43,6 +43,22 @@ function check_i {
   fi
 }
 
+
+function check_pandoc_crossref() {
+
+  if [[ $1 != $2 ]] ; then
+
+    printf "\n${red}warning${normal}: pandoc-crossref was built with Pandoc v${pandoc_crossref_ver}\n"
+    printf "         but v${pandoc_installed_full} is installed\n"
+    printf "         this could lead to unexpected results\n"
+    printf "         please check \n\n"
+  else
+   printf "${green}crossref${normal} version ckeck OK "
+  fi
+ }
+
+
+
 # =================================
 # Preliminary checks
 # =================================
@@ -230,6 +246,9 @@ if [ ! -f $installdir/pp-include.pl ]; then
   check_i
 fi
 
+pandoc_installed_full=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+
+
 if [ ! -f $installdir/pandoc-crossref ]; then
   printf "downloading pandoc filter 'pandoc-crossref'..."
   wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.8.1/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
@@ -237,24 +256,18 @@ if [ ! -f $installdir/pandoc-crossref ]; then
   printf "installing 'pandoc-crossref'..."
   tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
 
-# checking if Pandoc version matches the one with which pandoc-crossref was built
-
-    pandoc_installed_full=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
-    pandoc_crossref_ver=$($tmpdir/pandoc-crossref -v | grep -oP "Pandoc .*?," | awk '{print $2}' | cut -d , -f 1| cut -d v -f2 |  awk 'BEGIN { FS = "." } ; {print $1 "." $2}')
-
-    if [[ $pandoc_installed_full != $pandoc_crossref_ver ]] ; then
-
-      printf "\n${red}warning${normal}: pandoc-crossref was built with Pandoc v${pandoc_crossref_ver}\n"
-      printf "         but v${pandoc_installed_full} is installed\n"
-      printf "         this could lead to unexpected results\n"
-      printf "         please check \n\n"
-
-    else
-     printf "version ckeck OK "
-    fi
+  # checking if DOWNLOADED Pandoc version matches the one with which pandoc-crossref was built
+  pandoc_crossref_ver=$($tmpdir/pandoc-crossref -v | grep -oP "Pandoc .*?," | awk '{print $2}' | cut -d , -f 1| cut -d v -f2 |  awk 'BEGIN { FS = "." } ; {print $1 "." $2}')
+  check_pandoc_crossref "$pandoc_installed_full" "$pandoc_crossref_ver"
 
   sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
   check_i
+
+else
+
+  # checking if INSTALLED Pandoc version matches the one with which pandoc-crossref was built
+  pandoc_crossref_ver=$(pandoc-crossref -v | grep -oP "Pandoc .*?," | awk '{print $2}' | cut -d , -f 1| cut -d v -f2 |  awk 'BEGIN { FS = "." } ; {print $1 "." $2}')
+  check_pandoc_crossref "$pandoc_installed_full" "$pandoc_crossref_ver"
 
 fi
 
