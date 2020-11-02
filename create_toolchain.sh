@@ -126,7 +126,9 @@ if [[ -z $pandoc_installed ]]; then
   echo "Pandoc is not installed yet"
 fi
 
-echo "installed ver. $pandoc_installed, available $pandoc_cand, required min $minversion"
+pandoc_installed_full=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+
+echo "installed ver. $pandoc_installed_full, available $pandoc_cand, required min $minversion"
 
 if  [ $pandoc_installed -lt $minversion ] ; then
   if  [ $pandoc_cand -lt $minversion ] ; then
@@ -234,18 +236,21 @@ if [ ! -f $installdir/pandoc-crossref ]; then
   check_i
   printf "installing 'pandoc-crossref'..."
   tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
-    pandoc-crossref-ver=$($tmpdir/pandoc-crossref -v | )
 
 # checking if Pandoc version matches the one with which pandoc-crossref was built
 
-    pandoc_crossref_ver=$(pandoc-crossref -v | grep -oP "Pandoc .*?," | awk '{print $2}' | cut -d , -f 1| cut -d v -f2 |  awk 'BEGIN { FS = "." } ; {print $1 "." $2}')
+    pandoc_installed_full=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $1 "." $2}'`
+    pandoc_crossref_ver=$($tmpdir/pandoc-crossref -v | grep -oP "Pandoc .*?," | awk '{print $2}' | cut -d , -f 1| cut -d v -f2 |  awk 'BEGIN { FS = "." } ; {print $1 "." $2}')
 
-    if [[ $pandoc_installed != $pandoc_crossref_ver ]] ; then
-      printf "\n${red}warning${normal}: pandoc-crossref was built with Pandoc v${pandoc_crossref_ver},
-             but v${pandoc_installed} is installed\n
-             this could lead to unexpected results\n\n"
+    if [[ $pandoc_installed_full != $pandoc_crossref_ver ]] ; then
+
+      printf "\n${red}warning${normal}: pandoc-crossref was built with Pandoc v${pandoc_crossref_ver}\n"
+      printf "         but v${pandoc_installed} is installed\n"
+      printf "         this could lead to unexpected results\n"
+      printf "         please check \n\n"
+
     else
-      printf "OK\n"
+     printf "version ckeck OK "
     fi
 
   sudo mv $tmpdir/pandoc-crossref $installdir 1>>"$logfile" 2>>"$errorlogfile"
