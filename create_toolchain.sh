@@ -223,16 +223,16 @@ if [ ! -f $installdir/howdyadoc-legal-preview ]; then
 fi
 
 if [ ! -f $installdir/pp-include.pl ]; then
-  print "downloading and installing script 'pp-include.pl'..."
+  printf "downloading and installing script 'pp-include.pl'..."
   sudo wget --directory-prefix=$installdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/scripts/pp-include.pl 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $installdir/pandoc-crossref ]; then
-  print "downloading pandoc filter 'pandoc-crossref'..."
+  printf "downloading pandoc filter 'pandoc-crossref'..."
   wget --directory-prefix=$tmpdir https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.8.1/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
   check_i
-  print "installing 'pandoc-crossref'..."
+  printf "installing 'pandoc-crossref'..."
   tar -xf $tmpdir/pandoc-crossref-Linux.tar.xz 1>>"$logfile" 2>>"$errorlogfile"
     pandoc-crossref-ver=$($tmpdir/pandoc-crossref -v | )
 
