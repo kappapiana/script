@@ -5,9 +5,14 @@ green=$(tput setaf 76)
 normal=$(tput sgr0)
 bold=$(tput bold)
 underline=$(tput sgr 0 1)
+
+
 if [ ! -z $1 ] ; then
-printf "\noperating from $1\n"
-repo_name=$1
+  repo_name=$1
+  printf "\n\n${bold}operating from${normal} $repo_name\n"
+else
+  repo_name=$(pwd)
+  printf "\n\n${bold}operating from${normal} $repo_name\n"
 fi
 
 # delete local branches that have been deleted on remote repo
@@ -22,6 +27,6 @@ default_branch=$(git -C $repo_name remote show origin | grep "HEAD branch" | cut
 # checkout default branch
 git -C $repo_name checkout $default_branch
 git -C $repo_name pull origin $default_branch
-# fetch and pull all branches
+#  fetch and pull all branches
 git -C $repo_name fetch --all -p
 git -C $repo_name pull --all
