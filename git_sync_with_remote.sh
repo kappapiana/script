@@ -9,10 +9,14 @@ underline=$(tput sgr 0 1)
 
 if [ ! -z $1 ] ; then
   repo_name=$1
-  printf "\n\n${bold}operating from${normal} $repo_name\n"
+  printf " \n"
+  printf "%s\t%s\n" "${bold}operating from${normal}" "$repo_name"
+  printf "%s\n" "-------------------------------------------------------------------" ""
 else
   repo_name=$(pwd)
-  printf "\n\n${bold}operating from${normal} $repo_name\n"
+  printf " \n"
+  printf "%s\t%s\n" "${bold}operating from${normal}" "$repo_name"
+  printf "%s\n" "-------------------------------------------------------------------" ""
 fi
 
 # delete local branches that have been deleted on remote repo
