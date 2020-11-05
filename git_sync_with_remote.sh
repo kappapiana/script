@@ -1,5 +1,10 @@
 #!/bin/bash
 
+red=$(tput setaf 1)
+green=$(tput setaf 76)
+normal=$(tput sgr0)
+bold=$(tput bold)
+underline=$(tput sgr 0 1)
 if [ ! -z $1 ] ; then
 printf "\noperating from $1\n"
 repo_name=$1
