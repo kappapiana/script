@@ -79,10 +79,10 @@ do
 		now_date=$(date +%s)
 
 		if [ $(( now_date - last_update 	)) -gt 3600 ] ; then
-			host "$curremote" > /dev/null
+			host $curremote >/dev/null && curl --output /dev/null --silent --head --fail --connect-timeout 1 "$curremote"
 			if [ ! $? -eq 0 ] ; then #check if reachable (or https)
 				echo "${red}repo unreachable${normal}, move to next repo!"
-				unreachable_array+=("${f} ${curremote}")
+				unreachable_array+=("${f} @ ${curremote}")
 				continue
 			fi
 
