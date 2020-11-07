@@ -13,8 +13,10 @@ declare -a untracked_files_array=()
 declare -a unpushed_commits_array=()
 declare -a unpulled_commits_array=()
 declare -a newbranch_array=()
+declare -a unreachable_array=()
 normal=$(tput sgr0)
 bold=$(tput bold)
+red=$(tput setaf 1)
 
 
 # No directory has been provided, use current
@@ -63,10 +65,27 @@ do
 		mod=0
 		cd $f
 
+		# get first the remote repository if any
+		curremote=$(git remote -v | grep "^origin.*fetch")
+
+		if [[ ! "$curremote" == *"https"* ]] ; then
+			curremote=$(printf "$curremote" | awk '{print $2}' |cut -d "@" -f2 | cut -d ":" -f1)
+		else
+			curremote=$(printf "$curremote" | awk '{print $2}' |cut -d "/" -f3 )
+		fi
+
+		# check last update and count how long ago the repo has ben checked
 		last_update=$(stat -c %Y .git/FETCH_HEAD)
 		now_date=$(date +%s)
 
 		if [ $(( now_date - last_update 	)) -gt 3600 ] ; then
+			host $curremote >/dev/null && curl --output /dev/null --silent --head --fail --connect-timeout 1 "$curremote"
+			if [ ! $? -eq 0 ] ; then #check if reachable (or https)
+				echo "${red}repo unreachable${normal}, move to next repo!"
+				unreachable_array+=("${f} @ ${curremote}")
+				continue
+			fi
+
 			echo "fetching"
 			git fetch;
 		else
@@ -165,6 +184,11 @@ fi
 if [[ ! -z $newbranch_array ]]; then
 	printf "\\nwe have ${bold}a new branch${normal} in: \\n\\n"
 	printf  "%s \n" "${newbranch_array[@]}"
+fi
+
+if [[ ! -z $unreachable_array ]]; then
+	printf "\\nwe have ${bold}UNREACHABLE${normal} repositories in: \\n\\n"
+	printf  "%s \n" "${unreachable_array[@]}"
 fi
 
 printf "\\n* ------------------------------------ *\\n\\n"
