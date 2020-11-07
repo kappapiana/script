@@ -14,7 +14,7 @@ package_pandoc=pandoc-2.10.1-1-amd64.deb #corresponding package
 
 filtersdir=~/.pandoc/filters # lua filters will go here (user only)
 installdir=/usr/local/bin # binaries will go here (system-wide)
-deb_ver=`cat /etc/debian_version` # find out which Debian are we on
+deb_ver=`cat /etc/debian_version` # find out which Debian we are on
 update_pandoc="false" # inizialize variable to default value
 red=$(tput setaf 1)
 green=$(tput setaf 76)
@@ -55,7 +55,12 @@ if [[ $EUID == 0 ]]; then
   Sorry, this script ${red} must NOT${normal} be run as root:
   please log in as normal user or avoid using sudo.
   You will be asked to authenticate for sudo, if needed\n"
-   exit 1
+
+  rm $errorlogfile  # error log is created as root,
+                    # removed lest getting permission error installing as
+                    # regular user
+
+  exit 1
 fi
 
 # Check if Debian
@@ -109,13 +114,22 @@ fi
 # check what pandoc version do we have installed and available
 pandoc_installed=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
-[[ $pandoc_installed =~ ^.*none.*$ ]] && pandoc_installed=0 # if no version installed, we need a number, zero is low enough
+
+echo "installed pandoc version ${pandoc_installed}"
 
 # Install pandoc and only if the version in repositories is not sufficiently recent
 # fetch it and install manually
 
-if  [[ "$pandoc_installed" < "$minversion" ]] ; then
-  if  [[ "$pandoc_cand" < "$minversion" ]] ; then
+
+if [[ -z $pandoc_installed ]]; then
+  pandoc_installed=0 # 0 if none installed...
+  echo "Pandoc is not installed yet"
+fi
+
+echo "installed ver. $pandoc_installed, available $pandoc_cand, required min $minversion"
+
+if  [ $pandoc_installed -lt $minversion ] ; then
+  if  [ $pandoc_cand -lt $minversion ] ; then
     printf "downloading pandoc-$curversion_pandoc..."
     wget https://github.com/jgm/pandoc/releases/download/$curversion_pandoc/$package_pandoc 1>>"$logfile" 2>>"$errorlogfile"
     check_i
@@ -127,7 +141,7 @@ if  [[ "$pandoc_installed" < "$minversion" ]] ; then
     update_pandoc="true"
   fi
 else
-  printf "Pandoc is already up to the needed version ($minversion)"
+  printf "Pandoc is already up to the needed version ($minversion) "
   i_ok
   update_pandoc="false"
 fi
@@ -176,13 +190,13 @@ if [ ! -f $filtersdir/secgroups.lua ]; then
 fi
 
 if [ ! -f $filtersdir/pagebreak.lua ]; then
-  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  printf "downloading and installing pandoc filter 'pagebreak.lua'..."
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/pagebreak.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
 
 if [ ! -f $filtersdir/smartdivs.lua ]; then
-  printf "downloading and installing pandoc filter 'secgroups.lua'..."
+  printf "downloading and installing pandoc filter 'smartdivs.lua'..."
   wget --directory-prefix=$filtersdir https://raw.githubusercontent.com/alpianon/howdyadoc/dev-legal/legal/pandoc-lua-filters/smartdivs.lua 1>>"$logfile" 2>>"$errorlogfile"
   check_i
 fi
@@ -325,7 +339,7 @@ EOT
     read install_recommended
   done
   if [[ "$install_recommended" =~ [Yy] ]]; then
-    recommended_packages=(atom-overtype-mode change-case comment git-history magic-reflow open-file random split-diff todo-show)
+    recommended_packages=(atom-overtype-mode change-case comment git-history magic-reflow open-file random split-diff todo-show sync-settings)
     for pkg in ${recommended_packages[@]}; do
       if [ -z "`echo "$installed_packages" | grep $pkg`" ]; then
         printf "installing atom package '$pkg'..."
