@@ -63,10 +63,23 @@ do
 		mod=0
 		cd $f
 
+		# get first the remote repository if any
+		curremote=$(git remote -v | grep fetch | awk '{print $2}' |cut -d "@" -f2 | cut -d ":" -f1)
+
+		# check last update and count how long ago the repo has ben checked
 		last_update=$(stat -c %Y .git/FETCH_HEAD)
 		now_date=$(date +%s)
 
 		if [ $(( now_date - last_update 	)) -gt 3600 ] ; then
+
+			if [ $(host $curremote) -eq 0 ]; then
+
+				echo "we're good"
+			else
+				echo "repo unreachable, stop!"
+				exit
+			fi
+
 			echo "fetching"
 			git fetch;
 		else
