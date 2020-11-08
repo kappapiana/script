@@ -192,3 +192,8 @@ if [[ ! -z $unreachable_array ]]; then
 fi
 
 printf "\\n* ------------------------------------ *\\n\\n"
+
+# variable exported to local bash if run prepeding .
+# for test use only: no real function in general
+
+export -p ciccio=$(printf "%s \n" "${unpulled_commits_array[@]}" | awk '{print $1}')
