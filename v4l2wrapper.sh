@@ -78,8 +78,7 @@ elif [[ $REPLY -le ${#controls_array_plus[@]} ]]; then
   v4l2-ctl -d $video_id --list-ctrls | grep "${value} " | awk -F : '{print $2}'
   printf "\\nInsert the chosen value\\n\\n :> "
   read -r myvalue
-  v4l2-ctl -d $video_id --set-ctrl ${value}=${myvalue}
-   # 2> /dev/null
+  v4l2-ctl -d $video_id --set-ctrl ${value}=${myvalue} 2> /dev/null
   v4l2-ctl -d $video_id --get-ctrl=${value}
 
 else
@@ -108,11 +107,17 @@ clear
 
 checkinstalled
 
-printf "Values are: \n"
+printf "Values for $video_id are: \n"
 
 get_values
 
 printf "\\nset the value you want to set: \\n\\n"
+
+if [[ -z $1 ]]; then
+  printf "%s\n" "*******************" "You have not provided any arugments, you have the following devices"
+  v4l2-ctl --list-devices
+  printf "%s\n" "*******************"
+fi
 
 set_values
 
