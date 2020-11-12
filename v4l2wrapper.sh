@@ -6,9 +6,15 @@ green=$(tput setaf 76)
 normal=$(tput sgr0)
 bold=$(tput bold)
 
+video_id="/dev/video0" # default to first device
+
+if [[ ! -z $1 ]]; then
+  video_id="/dev/video$1"
+fi
+
 declare -a controls_array=()
 declare -a controls_array_plus=()
-mapfile -t controls_array < <(v4l2-ctl -d /dev/video0 --list-ctrls | awk '{print $1}')
+mapfile -t controls_array < <(v4l2-ctl -d $video_id --list-ctrls | awk '{print $1}')
 
 
 i_ok() { printf "${green}✔${normal}\n"; }
@@ -32,7 +38,7 @@ printf "%s \n" "${controls_array[@]}"
 
 function get_values {
   for i in ${controls_array[@]} ; do
-  v4l2-ctl --get-ctrl=${i}
+  v4l2-ctl -d $video_id --get-ctrl=${i}
 done
 }
 
@@ -43,7 +49,7 @@ quit_no=("${#controls_array_plus[*]}")
 list_no=$(( quit_no - 1 ))
 help_no=$(( quit_no - 2 ))
 
-PS3="Choose 1 to ${#controls_array[*]} to modify actual values;"$'\n'"${help_no} to help, ${list_no} to list, ${quit_no} to exit;"$'\n'"Make your choice: "
+PS3="Choose 1 to ${#controls_array[*]} to modify actual values;"$'\n'"${help_no} to help, ${list_no} to list, ${quit_no} to exit;"$'\n\n'"${green}Make your choice:${normal} "
 
 
 select value in ${controls_array_plus[@]}
@@ -63,21 +69,21 @@ elif [[ ${value} == "list" ]] ; then
 elif [[ ${value} == "help" ]]; then
 
   printf "\\n----------------------------------------------------------------\\n"
-  v4l2-ctl -d /dev/video0 --list-ctrls-menus
+  v4l2-ctl -d $video_id --list-ctrls-menus
   printf "\\n----------------------------------------------------------------\\n\\n"
 
-elif [[ $REPLY < 9 ]]; then
+elif [[ $REPLY -le ${#controls_array_plus[@]} ]]; then
 
-  printf "admissible values for ${bold}${value}${normal} are: \\n ->"
-  v4l2-ctl -d /dev/video0 --list-ctrls | grep "${value} " | awk -F : '{print $2}'
-  printf "insert the chosen value\\n:> "
+  printf "\\nadmissible values for ${bold}${value}${normal} are: \\n ->"
+  v4l2-ctl -d $video_id --list-ctrls | grep "${value} " | awk -F : '{print $2}'
+  printf "\\nInsert the chosen value\\n\\n :> "
   read -r myvalue
-  v4l2-ctl --set-ctrl=${value}=${myvalue} 2> /dev/null
-  v4l2-ctl --get-ctrl=${value}
+  v4l2-ctl -d $video_id --set-ctrl ${value}=${myvalue} 2> /dev/null
+  v4l2-ctl -d $video_id --get-ctrl=${value}
 
 else
 
-  printf "\\nSorry, I do not understand.\\n${bold}Numeric${normal} entry is expected\\n\\n"
+  printf "\\nSorry, I do not understand.\\nNumeric entry ${bold}between 1 and ${#controls_array_plus[@]}${normal} is expected\\n\\n"
 
 fi
 done
@@ -101,11 +107,17 @@ clear
 
 checkinstalled
 
-printf "Values are: \n"
+printf "Values for $video_id are: \n"
 
 get_values
 
-printf "\\nset the value you want to set: \\n"
+printf "\\nset the value you want to set: \\n\\n"
+
+if [[ -z $1 ]]; then
+  printf "%s\n" "*******************" "You have not provided any arugments, you have the following devices"
+  v4l2-ctl --list-devices
+  printf "%s\n" "*******************"
+fi
 
 set_values
 
