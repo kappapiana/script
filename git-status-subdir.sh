@@ -41,6 +41,7 @@ function checksub() {
 		if [ ! $? -eq 0 ] ; then #check if reachable (or https)
 			echo "${red}repo unreachable${normal}, move to next repo!"
 			unreachable_array+=("${f} @ ${curremote}")
+			touch .git/FETCH_HEAD
 			return
 		fi
 
@@ -155,7 +156,7 @@ do
 	else
 		if [ -f "$f/.gitsub" ]
 		then
-			echo "è sub $f" 
+			echo "è sub $f"
 			checksub
 		else
 		echo "Not a git repository"
