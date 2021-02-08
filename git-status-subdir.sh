@@ -136,7 +136,7 @@ else
 	dir="$dir*"
 fi
 
-echo "dir is $dir"
+echo "first level dir is $dir"
 
 # Loop all sub-directories
 for f in $dir
@@ -151,15 +151,26 @@ do
 	# Check if directory is a git repository
 	if [ -d "$f/.git" ]
 	then
-		# echo "partiamo"
+		echo "partiamo"
 		checksub
 	else
+
+		echo "il secondo livello $f non è git"
+
 		if [ -f "$f/.gitsub" ]
-		then
-			echo "è sub $f"
-			checksub
+			then
+				cd $f
+				echo "siamo ora in $f"
+				subdir=$(pwd)
+				echo "la base è $subdir"
+				for i in $subdir
+				do
+				cd $i
+				echo "è sub $i"
+				# checksub
+			done
 		else
-		echo "Not a git repository"
+		echo "Rinuncio"
 		fi
 	fi
 
