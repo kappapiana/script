@@ -92,13 +92,16 @@
 
   function checkinstalled { # Checks if program installed
 
-  if ! which v4l2-ctl > /dev/null ; then
+  if ! type v4l2-ctl > /dev/null ; then
    printf "v4l2-ctl is not installed\n\n"
    if [ -z "$deb_ver" ] ; then
       printf "\nThis ain't no Debian-based  -- You should install it by hand \n\n" ; exit 1
    else
-   printf "\ndo you want to install it? (requires sudo powers!)\n\n"
-   sudo apt install -y v4l-utils v4l2loopback-utils
+   printf "\ndo you want to install it? (requires sudo powers!):\n\n"
+   printf "use \"sudo apt install -y v4l-utils v4l2loopback-utils\" \n\n"
+
+   exit
+
   fi
   fi
   }

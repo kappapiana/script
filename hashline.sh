@@ -19,7 +19,7 @@ if [[ -z $1 ]]; then
 
 fi
 
-if [ -z $2 ] ; then # Can pass a parameter, defaults to sha256
+if [ -z "$2" ] ; then # Can pass a parameter, defaults to sha256
 
   length=256
 
@@ -28,9 +28,9 @@ else
 
 fi
 
-if file $1 | grep -q 'text'; then # checks it's a text file, else it's rubbish
+if file "$1" | grep -q 'text'; then # checks it's a text file, else it's rubbish
 
-  while read line; do echo -n $line|sha${length}sum; done < $1 |awk '{print $1}'
+  while read -r line; do echo -n "$line"|sha"${length}"sum; done < "$1" |awk '{print $1}'
 
 else
 
