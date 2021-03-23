@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This is kept for legacy purposes, not maintained any more
+
+
 # =================================
 # Pandoc version
 # =================================
@@ -14,7 +17,7 @@ package_pandoc=pandoc-2.10.1-1-amd64.deb #corresponding package
 
 filtersdir=~/.pandoc/filters # lua filters will go here (user only)
 installdir=/usr/local/bin # binaries will go here (system-wide)
-deb_ver=`cat /etc/debian_version` # find out which Debian we are on
+deb_ver=$"cat /etc/debian_version" # find out which Debian we are on
 update_pandoc="false" # inizialize variable to default value
 red=$(tput setaf 1)
 green=$(tput setaf 76)
@@ -31,14 +34,14 @@ exec 2>>"$errorlogfile"
 # Silly functions
 # =================================
 
-i_ok() { printf "${green}✔${normal}\n"; }
-i_ko() { printf "\n  ${red}✖  ERROR  ✖${normal}\n"; }
+i_ok() { printf "%s✔\n" "${green}" "${normal}"; }
+i_ko() { printf "%s✖%s\n...exiting, check logs" "${green}" "${normal}"; }
 
 function check_i {
   if [ $? -eq 0 ]; then
     i_ok
   else
-    i_ko; read
+    i_ko; read -r
     exit
   fi
 }
@@ -52,11 +55,11 @@ function check_i {
 if [[ $EUID == 0 ]]; then
   i_ko
   printf "
-  Sorry, this script ${red} must NOT${normal} be run as root:
+  Sorry, this script must %sNOT%s be run as root:
   please log in as normal user or avoid using sudo.
-  You will be asked to authenticate for sudo, if needed\n"
+  You will be asked to authenticate for sudo, if needed\n" "${red}" "${normal}"
 
-  rm $errorlogfile  # error log is created as root,
+  rm "$errorlogfile"  # error log is created as root,
                     # removed lest getting permission error installing as
                     # regular user
 
@@ -72,15 +75,15 @@ fi
 
 # check if sudoer
 
-sudo touch /tmp/test 2> /dev/null
 
-if [ $? != 0 ]
+
+if ! sudo touch /tmp/test 2> /dev/null
 then
   i_ko
   printf "\n  Oh no, you are not a sudoer!
   Make sure your user can sudo.
   or add yourself to sudo group. Go back to root and use:
-  # usermod -a -G sudo $USER \n\n"
+  # usermod -a -G sudo \$USER \n\n"
   exit 1
 fi
 
@@ -91,7 +94,7 @@ fi
 # we operate from a temporary directory
 printf "\ncreating temp dir..."
 tmpdir=$(mktemp -d)
-cd $tmpdir
+cd "$tmpdir" || exit
 check_i
 
 # ------------------------
@@ -112,7 +115,7 @@ if [ $((now - last_update)) -gt 3600 ] || [ ! $actualsize -ge 3000 ] ; then
 fi
 
 # check what pandoc version do we have installed and available
-pandoc_installed=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
+pandoc_installed=$(export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Inst" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}')
 pandoc_cand=`export LANG=en_US.UTF-8; apt-cache policy pandoc | egrep "Cand" | awk '{print $2}' | sed 's/-/./g' | awk 'BEGIN { FS = "." } ; {print $2}'`
 
 echo "installed pandoc version ${pandoc_installed}"
@@ -129,7 +132,7 @@ fi
 echo "installed ver. $pandoc_installed, available $pandoc_cand, required min $minversion"
 
 if  [ $pandoc_installed -lt $minversion ] ; then
-  if  [ $pandoc_cand -lt $minversion ] ; then
+  if  [ "$pandoc_cand" -lt $minversion ] ; then
     printf "downloading pandoc-$curversion_pandoc..."
     wget https://github.com/jgm/pandoc/releases/download/$curversion_pandoc/$package_pandoc 1>>"$logfile" 2>>"$errorlogfile"
     check_i
