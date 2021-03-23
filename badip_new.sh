@@ -11,15 +11,13 @@
 
 # **************************************************
 
-file=$1
-
 echo "Start! da file $1"
 
 rm ~/white.txt
 
 #find those whiltelisted, never shut them off
 
-sudo iptables --list INPUT -v -n | grep ^\ *[0-9].*ACCEPT | awk '{print $8}' > /home/carlo/white.txt
+sudo iptables --list INPUT -v -n | grep "^\ *[0-9].*ACCEPT" | awk '{print $8}' > /home/carlo/white.txt
 
 echo "these are whitelisted"
 cat ~/white.txt
@@ -30,11 +28,11 @@ rm ~/present.txt
 
 #find those already in the REJECT list
 
-sudo /sbin/iptables --list -n --line-numbers | egrep "(REJECT) | (DROP)"  | awk '{print $5}' | sort -n | uniq > ~/present.txt
+sudo /sbin/iptables --list -n --line-numbers | grep -E "(REJECT) | (DROP)"  | awk '{print $5}' | sort -n | uniq > ~/present.txt
 
 sleep 1
 
-while read p; do
+while read -r p; do
 
 	if grep -q "$p" ~/present.txt ; then
 		echo "trovato $p"
@@ -43,12 +41,12 @@ while read p; do
 	else
 		echo "$p non trovato"
 	echo "comando: sudo iptables -I INPUT -s $p -j DROP"
-	sudo iptables -I INPUT -s $p -j DROP
+	sudo iptables -I INPUT -s "$p" -j DROP
 
-		echo "$p cancellato" 
-	fi 
+		echo "$p cancellato"
+	fi
 
-done < $1
+done < "$1"
 
 sudo bash -c "iptables-save > /etc/network/iptables.save"
 
