@@ -37,4 +37,4 @@ git -C "$repo_name" branch -r | grep -v '\->' | grep "origin/" | \
     git -C "$repo_name" branch --track "${remote#origin/}" "$remote"
   done
 
-git checkout $current_branch # returns to initial branch
+git checkout "$current_branch" # returns to initial branch
