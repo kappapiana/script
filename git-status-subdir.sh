@@ -79,8 +79,8 @@ do
 		now_date=$(date +%s)
 
 		if [ $(( now_date - last_update 	)) -gt 3600 ] ; then
-			host $curremote >/dev/null && curl --output /dev/null --silent --head --fail --connect-timeout 1 "$curremote"
-			if [ ! $? -eq 0 ] ; then #check if reachable (or https)
+			if ! host "$curremote" >/dev/null && curl --output /dev/null --silent --head --fail --connect-timeout 1 "$curremote"
+			 then #check if reachable (or https)
 				echo "${red}repo unreachable${normal}, move to next repo!"
 				unreachable_array+=("${f} @ ${curremote}")
 				continue
@@ -94,7 +94,7 @@ do
 
 
 		# Check for modified files
-		if [ $(git status | grep modified -c) -ne 0 ]
+		if [ "$(git status | grep modified -c)" -ne 0 ]
 		then
 			mod=1
 			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
@@ -105,7 +105,7 @@ do
 		fi
 
 		# Check for untracked files
-		if [ $(git status | grep Untracked -c) -ne 0 ]
+		if [ "$(git status | grep Untracked -c)" -ne 0 ]
 		then
 			mod=1
 			curbranch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
@@ -158,36 +158,36 @@ done
 done
 
 printf "*------------------------------------*\\n"
-printf "   ${bold}please check these directories${normal}:\\n"
+printf "   %splease check these directories%s:\\n" "${bold}" "${normal}"
 printf "*------------------------------------*\\n"
 
-if [[ ! -z $changed_files_array ]]; then
-	printf "\\nwe have ${bold}modified${normal} files in: \\n\\n"
+if [[ -n "${changed_files_array}" ]]; then
+	printf "\\nwe have %smodified%s files in: \\n\\n" "${bold}" "${normal}"
 	printf  "%s \n" "${changed_files_array[@]}"
 fi
 
-if [[ ! -z $untracked_files_array ]]; then
-	printf "\\nwe have ${bold}untracked${normal} files in: \\n\\n"
+if [[ -n "${untracked_files_array}" ]]; then
+	printf "\\nwe have %suntracked%s files in: \\n\\n" "${bold}" "${normal}"
 	printf  "%s \n" "${untracked_files_array[@]}"
 fi
 
-if [[ ! -z $unpushed_commits_array ]]; then
-	printf "\\nwe have ${bold}unpushed${normal} commits in: \\n\\n"
+if [[ -n $unpushed_commits_array ]]; then
+	printf "\\nwe have %sunpushed%s commits in: \\n\\n" "${bold}" "${normal}"
 	printf  "%s \n" "${unpushed_commits_array[@]}"
 fi
 
-if [[ ! -z $unpulled_commits_array ]]; then
-	printf "\\nwe have ${bold}unpulled${normal} commits in: \\n\\n"
+if [[ -n $unpulled_commits_array ]]; then
+	printf "\\nwe have %sunpulled%s commits in: \\n\\n" "${bold}" "${normal}"
 	printf  "%s \n" "${unpulled_commits_array[@]}"
 fi
 
-if [[ ! -z $newbranch_array ]]; then
-	printf "\\nwe have ${bold}a new branch${normal} in: \\n\\n"
+if [[ -n $newbranch_array ]]; then
+	printf "\\nwe have a %snew branch%s in: \\n\\n" "${bold}" "${normal}"
 	printf  "%s \n" "${newbranch_array[@]}"
 fi
 
-if [[ ! -z $unreachable_array ]]; then
-	printf "\\nwe have ${bold}UNREACHABLE${normal} repositories in: \\n\\n"
+if [[ -n $unreachable_array ]]; then
+	printf "\\nwe have %sUNREACHABLE%s repositories in: \\n\\n" "${bold}" "${normal}"
 	printf  "%s \n" "${unreachable_array[@]}"
 fi
 
@@ -196,4 +196,6 @@ printf "\\n* ------------------------------------ *\\n\\n"
 # variable exported to local bash if run prepeding .
 # for test use only: no real function in general
 
-export -p ciccio=$(printf "%s \n" "${unpulled_commits_array[@]}" | awk '{print $1}')
+ciccio=$(printf "%s \n" "${unpulled_commits_array[@]}" | awk '{print $1}')
+
+export -p ciccio
