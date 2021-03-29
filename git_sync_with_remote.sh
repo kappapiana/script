@@ -6,8 +6,9 @@ normal=$(tput sgr0)
 bold=$(tput bold)
 # underline=$(tput sgr 0 1)
 
-current_branch=$(git branch --show-current) # mark what branch are we currently
-
+current_branch=$(git  -C "$repo_name" branch --show-current) # mark what branch are we currently
+#
+# echo "current branch $current_branch"
 
 if [ -n "$1" ] ; then
   repo_name="$1"
@@ -21,7 +22,8 @@ else
   printf "%s\n" "-------------------------------------------------------------------" ""
 fi
 
-default_branch=$(git -C "$repo_name" remote show origin | grep "HEAD branch" | cut -d ":" -f 2)
+default_branch=$(git -C "$repo_name" remote show origin | grep "HEAD branch" | cut -d " " -f 3)
+echo "branch è |$default_branch|"
 # checkout default branch
 git -C "$repo_name" checkout "$default_branch"
 git -C "$repo_name" pull origin "$default_branch"
