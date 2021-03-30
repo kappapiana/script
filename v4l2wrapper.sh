@@ -110,17 +110,23 @@
 
   checkinstalled
 
+
+    if [[ -z $1 ]]; then
+      printf "%s\n" "*******************" "You have not provided any arugments, you have the following devices"
+      v4l2-ctl --list-devices
+
+      printf "we are defaulting to %s\n\n" "$video_id"
+
+      printf "%s\n\n" "If you want to select another source, pass the number of the source as argument"
+
+      printf "%s\n" "*******************"
+    fi
+
   printf "Values for %s are: \n" "$video_id"
 
   get_values
 
   printf "\\nset the value you want to set: \\n\\n"
-
-  if [[ -z $1 ]]; then
-    printf "%s\n" "*******************" "You have not provided any arugments, you have the following devices"
-    v4l2-ctl --list-devices
-    printf "%s\n" "*******************"
-  fi
 
   set_values
 
