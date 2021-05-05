@@ -6,7 +6,11 @@ import ssl
 from datetime import date
 from pathlib import Path
 
-target_url = "https://pst.giustizia.it/PST/it/pst_3.wp"
+# List of current URL to check
+target_url = ["https://pst.giustizia.it/PST/it/pst_3.wp",
+              "https://www.piana.eu",
+              "https://www.amici-oncologia.it/donazioni",
+              ]
 # fix for ssl mishandling
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -60,4 +64,5 @@ def change_check(page):
     file_log.close()
 
 
-change_check(target_url)
+for i in target_url:
+    change_check(i)
