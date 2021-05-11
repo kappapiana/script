@@ -24,3 +24,12 @@ printf "Tokyo: \t\t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
 
 export TZ='Australia/Sydney'
 printf "Sydney: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Europe/London'
+printf "London: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Europe/Dublin'
+printf "Dublin: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Europe/Moscow'
+printf "Moscow: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
