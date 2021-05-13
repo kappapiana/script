@@ -25,6 +25,6 @@ printf "European Time: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
 
 for TZ in "${TZs[@]}"
 do
-  loc=$(echo $TZ | cut -f 2 -d / | tr '_' ' ')
-  TZ=$TZ ; printf "$loc:%*s$(date -d "$utc_date" +"%Y-%m-%d %T %Z") \n" "$((16-${#loc}))"
+  loc=$(echo "$TZ" | cut -f 2 -d / | tr '_' ' ')
+  export TZ="$TZ" ; printf "$loc:%*s$(date -d "$utc_date" +"%Y-%m-%d %T %Z") \n" "$((16-${#loc}))"
 done
