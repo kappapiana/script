@@ -18,13 +18,15 @@ TZs=(
 
 
 printf "+---------------------------------------------------------+ \n"
-printf "Universal Coordinated time: $(date -d "$utc_date" +"%Y-%m-%d %T %Z" -u) \n"
+printf "Universal Coordinated time: %s \n" \
+"$(date -d "$utc_date" +"%Y-%m-%d %T %Z" -u)"
 printf "+---------------------------------------------------------+ \n"
 
-printf "European Time: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "European Time: \t %s \n" "$(date -d "$utc_date" +"%Y-%m-%d %T %Z" )"
 
 for TZ in "${TZs[@]}"
 do
   loc=$(echo "$TZ" | cut -f 2 -d / | tr '_' ' ')
-  export TZ="$TZ" ; printf "$loc:%*s$(date -d "$utc_date" +"%Y-%m-%d %T %Z") \n" "$((16-${#loc}))"
+  export TZ=$TZ ; printf "$loc:%*s$(date -d "$utc_date" +"%Y-%m-%d %T %Z") \n" \
+  "$((16-${#loc}))"
 done
