@@ -10,7 +10,7 @@
 if [ -z "$1" ]; then
     utc_date=$(date +"%Y-%m-%d %T %Z")
 else
-    utc_date=$(date -d "$1" +"%Y-%m-%d %T %Z")
+    utc_date=$(date -u -d "$1" +"%Y-%m-%d %T %Z")
 fi
 
 continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
