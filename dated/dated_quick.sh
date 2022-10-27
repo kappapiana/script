@@ -30,21 +30,56 @@ if [ -z "$1"]; then
   echo "enter timezone (leave blank for current one)"
   read TZ
 
+  if [ -z $TZ ]; then
+  echo "TZ vuota"
+
+  # Se non sa, inseriamola noi
+    # importa funzione
+    continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
+
+    # add to the list of continents the 'exit' option
+    continent_list="$continent_list exit"
+    # show the list of the continents to select from
+    select continent in $continent_list
+    do
+        # if the user selected 'exit' then exit the script
+        if [ "$continent" = "exit" ]; then
+            exit
+        fi
+        # if the user selects a continent, then show the list of timezones
+        # in that continent
+        if [ -n "$continent" ]; then
+            timezone_list=`timedatectl list-timezones | grep $continent | cut -f 2 -d / | sort`
+            # add to the list of timezones the 'exit' option
+            timezone_list="BACK $timezone_list"
+            # show the list of timezones to select from
+            select city in $timezone_list; do
+                # if the user selected 'back' then go back to selecting the continent
+                if [ "$city" = "BACK" ]; then
+                    continue
+                fi
+                # if the user selects a city, then convert the date
+                # to that timezone
+                if [ -n "$city" ]; then
+                    TZ=$continent/$city
+                    loc=$(echo "$city" | cut -f 2 -d / | tr '_' ' ')
+                fi
+            done
+        fi
+    done
+    # fine importa funzione
+
+  fi
+
 else # User has entered at least one string, just use what user passed
 
   date="$1"
 
   if [ -n "$2" ]; then
-    # echo "piena"
     TZ="$2"
-    # echo "$1"
-  else
-    echo "using system timezone"
   fi
 
 fi
-
-# Now we have both values (including, "no value")
 
 if [ -n "$TZ" ]; then
 
