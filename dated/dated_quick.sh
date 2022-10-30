@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+  #!/usr/bin/env bash
 
 # simple oneliner to convert date in various time zones
 
@@ -38,38 +38,49 @@ if [ -z "$1"]; then
     continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
 
     # add to the list of continents the 'exit' option
-    continent_list="$continent_list exit"
-    # show the list of the continents to select from
-    select continent in $continent_list
-    do
-        # if the user selected 'exit' then exit the script
-        if [ "$continent" = "exit" ]; then
-            exit
-        fi
-        # if the user selects a continent, then show the list of timezones
-        # in that continent
-        if [ -n "$continent" ]; then
-            timezone_list=`timedatectl list-timezones | grep $continent | cut -f 2 -d / | sort`
-            # add to the list of timezones the 'exit' option
-            timezone_list="BACK $timezone_list"
-            # show the list of timezones to select from
-            select city in $timezone_list; do
-                # if the user selected 'back' then go back to selecting the continent
-                if [ "$city" = "BACK" ]; then
-                    continue
-                fi
-                # if the user selects a city, then convert the date
-                # to that timezone
-                if [ -n "$city" ]; then
-                    TZ=$continent/$city
-                    loc=$(echo "$city" | cut -f 2 -d / | tr '_' ' ')
-                fi
-            done
-        fi
-    done
+    function enter_continentcity() {
+      #statements
+        continent_list="$continent_list exit"
+        # show the list of the continents to select from
+        PS3="Enter Continent (exit to exit program):"
+        select continent in $continent_list
+        do
+            # if the user selected 'exit' then exit the script
+            if [ "$continent" = "exit" ]; then
+                exit
+            fi
+            # if the user selects a continent, then show the list of timezones
+            # in that continent
+            if [ -n "$continent" ]; then
+                timezone_list=`timedatectl list-timezones | grep $continent | cut -f 2 -d / | sort`
+                # add to the list of timezones the 'exit' option
+                timezone_list="BACK $timezone_list"
+                # show the list of timezones to select from
+                PS3="Enter City (1: back to continent selection):"
+                select city in $timezone_list; do
+                    # if the user selected 'back' then go back to selecting the continent
+                    # if the user selects a city, then convert the date
+                    # to that timezone
+                    if [ -n "$city" ]; then
+                      TZ=$continent/$city
+                    fi
+                    break
+                  done
+              fi
+              break
+          done
+        }
+
+      enter_continentcity
+
+      while  [ "$city" == "BACK" ]; do
+          enter_continentcity
+      done
+
     # fine importa funzione
 
-  fi
+            echo "$TZ"
+          fi
 
 else # User has entered at least one string, just use what user passed
 
