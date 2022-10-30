@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Carlo Piana, Federico Edo Granata
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 # shell script to convert date to another timezone
 # usage: dated.sh [date]
 
