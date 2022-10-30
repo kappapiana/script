@@ -118,34 +118,36 @@ else
   # echo "vuota"
 fi
 
-# UTC is always the basis for calculation
-
-utc_date=$(date -d "$input_date" +"%Y-%m-%d %T %Z")
-
 
 printf "+---------------------------------------------------------+ \n"
-printf "Universal Coordinated time: $(date -d "$utc_date" +"%Y-%m-%d %T %Z" -u) \n"
+printf "Original date: $input_date \n"
 printf "+---------------------------------------------------------+ \n"
 
-printf "European Time: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "+---------------------------------------------------------+ \n"
+printf "Universal Coordinated time: $(date -d "$input_date" +"%Y-%m-%d %T %Z" -u) \n"
+printf "+---------------------------------------------------------+ \n"
+
+
+export TZ='Europe/Amsterdam'
+printf "\nCentral European Time: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
 
 export TZ='America/Los_Angeles'
-printf "Los Angeles: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z") \n"
+printf "Los Angeles: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z") \n"
 
 export TZ='America/New_York'
-printf "New York: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z") \n"
+printf "New York: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z") \n"
 
 export TZ='Asia/Tokyo'
-printf "Tokyo: \t\t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Tokyo: \t\t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
 
 export TZ='Australia/Sydney'
-printf "Sydney: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Sydney: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
 
 export TZ='Europe/London'
-printf "London: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "London: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
 
 export TZ='Europe/Dublin'
-printf "Dublin: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Dublin: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
 
 export TZ='Europe/Moscow'
-printf "Moscow: \t $(date -d "$utc_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Moscow: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
