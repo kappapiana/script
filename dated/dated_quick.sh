@@ -1,85 +1,102 @@
   #!/usr/bin/env bash
 
-# simple oneliner to convert date in various time zones
+bold=$(tput bold)
+normal=$(tput sgr0)
 
-printf "+---------------------------------------------------------+ \n"
+while getopts ":h" option; do
+   case ${option} in
 
+      h) # display Help
+
+printf "\n+---------------------------------------------------------+ \n"
 echo """
 usage: insert the date in the STRING format for date
-if you want to enter a different timezone to convert FROM
-just add it as a second variable.
+if you want to enter a ${bold}different timezone${norma} to convert FROM
+just add it as a ${bold}second${normal} variable.
 
 Encapsulate variables within quotation marks.
 
 example: ./dated_quick.sh "2022-11-04 11:29" "America/New_York"
 
-Otherwise, just leave entry blank and you will be asked
+Otherwise, just leave entry blank and you will be asked both time and timezone
+
+If you don't know what to enter for timezone, leave also this blank and
+you'll be asked
 
 """
 printf "+---------------------------------------------------------+ \n"
 
+         exit;;
+
+   esac
+done
+
 set -e  # fails on error
+
+# extracts the continent list
+continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
+
+# add to the list of continents the 'exit' option
+continent_list="$continent_list exit"
+
+function enter_continentcity() {
+  #statements
+    # show the list of the continents to select from
+    PS3="Enter Continent (exit to exit program):"
+    select continent in $continent_list
+    do
+        # if the user selected 'exit' then exit the script
+        if [ "$continent" = "exit" ]; then
+            exit
+        fi
+        # if the user selects a continent, then show the list of timezones
+        # in that continent
+        if [ -n "$continent" ]; then
+            timezone_list=`timedatectl list-timezones | grep $continent | cut -f 2 -d / | sort`
+            # add to the list of timezones the 'exit' option
+            timezone_list="BACK $timezone_list"
+            # show the list of timezones to select from
+            PS3="Enter City (1: back to continent selection):"
+            select city in $timezone_list; do
+                # if the user selected 'back' then go back to selecting the continent
+                # if the user selects a city, then convert the date
+                # to that timezone
+                if [ -n "$city" ]; then
+                  TZ=$continent/$city
+                else
+                  continue
+                fi
+
+                break
+              done
+          fi
+          break
+      done
+    }
+
 
 # If nothing is entered in the string, ask user
 
-if [ -z "$1"]; then
+if [ -z "$1" ]; then
 
   echo "enter date: "
   read date
 
-  echo "enter timezone (leave blank for current one)"
+  echo "enter timezone (leave blank for menu)"
   read TZ
 
   if [ -z $TZ ]; then
-  echo "TZ vuota"
-
-  # Se non sa, inseriamola noi
-    # importa funzione
-    continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
-
-    # add to the list of continents the 'exit' option
-    function enter_continentcity() {
-      #statements
-        continent_list="$continent_list exit"
-        # show the list of the continents to select from
-        PS3="Enter Continent (exit to exit program):"
-        select continent in $continent_list
-        do
-            # if the user selected 'exit' then exit the script
-            if [ "$continent" = "exit" ]; then
-                exit
-            fi
-            # if the user selects a continent, then show the list of timezones
-            # in that continent
-            if [ -n "$continent" ]; then
-                timezone_list=`timedatectl list-timezones | grep $continent | cut -f 2 -d / | sort`
-                # add to the list of timezones the 'exit' option
-                timezone_list="BACK $timezone_list"
-                # show the list of timezones to select from
-                PS3="Enter City (1: back to continent selection):"
-                select city in $timezone_list; do
-                    # if the user selected 'back' then go back to selecting the continent
-                    # if the user selects a city, then convert the date
-                    # to that timezone
-                    if [ -n "$city" ]; then
-                      TZ=$continent/$city
-                    fi
-                    break
-                  done
-              fi
-              break
-          done
-        }
+  printf "\nSelect continent and city:\n\n"
 
       enter_continentcity
+
+      # use while loop to remain in the upper menu if BACK is entered
 
       while  [ "$city" == "BACK" ]; do
           enter_continentcity
       done
 
-    # fine importa funzione
-
-            echo "$TZ"
+            printf "\nYou have selected: \n${bold}$TZ ${normal}Timezone\n\n"
           fi
 
 else # User has entered at least one string, just use what user passed
