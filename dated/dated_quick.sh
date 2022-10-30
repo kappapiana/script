@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: Carlo Piana, Federico Edo Granata
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 bold=$(tput bold)
 normal=$(tput sgr0)
 
