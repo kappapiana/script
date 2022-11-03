@@ -7,34 +7,6 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-while getopts ":h" option; do
-   case ${option} in
-
-      h) # display Help
-
-printf "\n+---------------------------------------------------------+ \n"
-echo """
-usage: insert the date in the STRING format for date
-if you want to enter a ${bold}different timezone${norma} to convert FROM
-just add it as a ${bold}second${normal} variable.
-
-Encapsulate variables within quotation marks.
-
-example: ./dated_quick.sh "2022-11-04 11:29" "America/New_York"
-
-Otherwise, just leave entry blank and you will be asked both time and timezone
-
-If you don't know what to enter for timezone, leave also this blank and
-you'll be asked
-
-"""
-printf "+---------------------------------------------------------+ \n"
-
-         exit;;
-
-   esac
-done
-
 set -e  # fails on error
 
 # extracts the continent list
@@ -42,6 +14,37 @@ continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
 
 # add to the list of continents the 'exit' option
 continent_list="$continent_list exit"
+
+function enter_values() {
+  echo "enter date: "
+  read date
+
+  echo "enter timezone (leave blank for menu)"
+  read TZ
+
+  if [ -z $TZ ]; then
+  printf "\nSelect continent and city:\n\n"
+
+      enter_continentcity
+
+      # use while loop to remain in the upper menu if BACK is entered
+
+      while  [ "$city" == "BACK" ]; do
+          enter_continentcity
+      done
+
+            printf "\nYou have selected: \n${bold}$timezone ${normal}Timezone\n\n"
+
+
+else # User has entered at least one string, just use what user passed
+
+  date="$1"
+
+  if [ -n "$2" ]; then
+    TZ="$2"
+  fi
+fi
+  }
 
 function enter_continentcity() {
   #statements
@@ -66,7 +69,7 @@ function enter_continentcity() {
                 # if the user selects a city, then convert the date
                 # to that timezone
                 if [ -n "$city" ]; then
-                  TZ=$continent/$city
+                  timezone=$continent/$city
                 else
                   continue
                 fi
@@ -78,48 +81,67 @@ function enter_continentcity() {
       done
     }
 
+function enter_to_timezone() {
+
+
+      enter_continentcity
+
+      totimezone="$timezone"
+
+      echo "To timezone is $totimezone"
+        }
+
+
+while getopts ":h:t" option; do
+   case ${option} in
+
+     h) # display Help
+
+printf "\n+---------------------------------------------------------+ \n"
+echo """
+usage: insert the date in the STRING format for date
+if you want to enter a ${bold}different timezone${norma} to convert FROM
+just add it as a ${bold}second${normal} variable.
+
+Encapsulate variables within quotation marks.
+
+example: ./dated_quick.sh "2022-11-04 11:29" "America/New_York"
+
+Otherwise, just leave entry blank and you will be asked both time and timezone
+
+If you don't know what to enter for timezone, leave also this blank and
+you'll be asked
+
+"""
+printf "+---------------------------------------------------------+ \n"
+
+        exit;;
+
+     t)
+     echo "T"
+
+     enter_to_timezone
+
+     ;;
+
+
+   esac
+done
+
+
 
 # If nothing is entered in the string, ask user
 
 if [ -z "$1" ]; then
-
-  echo "enter date: "
-  read date
-
-  echo "enter timezone (leave blank for menu)"
-  read TZ
-
-  if [ -z $TZ ]; then
-  printf "\nSelect continent and city:\n\n"
-
-      enter_continentcity
-
-      # use while loop to remain in the upper menu if BACK is entered
-
-      while  [ "$city" == "BACK" ]; do
-          enter_continentcity
-      done
-
-            printf "\nYou have selected: \n${bold}$TZ ${normal}Timezone\n\n"
-          fi
-
-else # User has entered at least one string, just use what user passed
-
-  date="$1"
-
-  if [ -n "$2" ]; then
-    TZ="$2"
-  fi
-
+  enter_values
+  TZ=$timezone
 fi
 
 if [ -n "$TZ" ]; then
 
-  input_date="TZ=\"$TZ\" $date"
-  # echo "$1"
+  input_date="TZ=\"$timezone\" $date"
 else
   input_date="$date"
-  # echo "vuota"
 fi
 
 
