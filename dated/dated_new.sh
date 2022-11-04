@@ -83,11 +83,11 @@ function enter_continentcity() {
         # if the user selects a continent, then show the list of timezones
         # in that continent
         if [ -n "$continent" ]; then
-            timezone_list=`timedatectl list-timezones | grep $continent | cut -f 2 -d / | sort`
+            timezone_list=$(timedatectl list-timezones | grep "$continent" | cut -f 2 -d / | sort)
             # add to the list of timezones the 'exit' option
             timezone_list="BACK $timezone_list"
             # show the list of timezones to select from
-            PS3="Enter City (1: back to continent selection):"
+            PS3="Enter City/location (1: back to continent selection):"
             select city in $timezone_list; do
                 # if the user selected 'back' then go back to selecting the continent
                 # if the user selects a city, then convert the date
@@ -109,10 +109,10 @@ function enter_continentcity() {
 # $from_timezone and $date are set.
 function get_values() {
 
-  if  [ -z $prompted_time ] ; then
+  if  [ -z "$prompted_time" ] ; then
 
     echo "enter date: "
-    read date
+    read -r date
   else
     echo "From date is already enterd, move on"
     date="$prompted_time"
@@ -120,7 +120,7 @@ function get_values() {
 
   if [[ -z $prompted_TZ ]]; then
     echo "enter timezone (leave blank for menu)"
-    read TZ
+    read -r TZ
     from_timezone="$TZ"
   else
     echo "From timezone e is already enterd, move on"
@@ -140,8 +140,8 @@ function get_values() {
           enter_continentcity
       done
 
-      printf "\nYou have selected: \n${bold}$timezone ${normal}Timezone\n\n"
-      from_timezone=$timezone
+      printf "\nYou have selected: \n%s$timezone %sTimezone\n\n" "${bold}" "${normal}"
+      from_timezone="$timezone"
     fi
 
               }
@@ -153,7 +153,7 @@ function enter_to_timezone() {
     # modify the prompt
     to_or_from="${bold}TO which${normal} time will be translated"
 
-    printf "\n\nEnter the timezone ${bold}to which${normal} the time must be translated\n\n"
+    printf "\n\nEnter the timezone %sto which%s the time must be translated\n\n"  "${bold}" "${normal}"
 
     enter_continentcity
 
@@ -183,14 +183,14 @@ echo "timezone from is $from_timezone"
 input_date="TZ=\"$from_timezone\" $date"
 
 printf "+---------------------------------------------------------+ \n"
-printf "Universal Coordinated time: $(date -d "$input_date" +"%Y-%m-%d %T %Z" -u ) \n"
+printf "Universal Coordinated time: %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" -u )"
 printf "+---------------------------------------------------------+ \n"
 
 if [[ -n $to_timezone ]]; then
   export TZ="$to_timezone"
 
   printf "+---------------------------------------------------------+ \n"
-  printf "Date of ${to_timezone} is: $(date -d "$input_date" +"%Y-%m-%d %T %Z"  ) \n"
+  printf "Date of ${to_timezone} is: $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
   printf "+---------------------------------------------------------+ \n"
 
 fi
@@ -201,25 +201,25 @@ printf "+---------------------------------------------------------+ \n"
 
 
 export TZ='Europe/Amsterdam'
-printf "\nCentral European Time: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "\nCentral European Time: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='America/Los_Angeles'
-printf "Los Angeles: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z") \n"
+printf "Los Angeles: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='America/New_York'
-printf "New York: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z") \n"
+printf "New York: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='Asia/Tokyo'
-printf "Tokyo: \t\t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Tokyo: \t\t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='Australia/Sydney'
-printf "Sydney: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Sydney: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='Europe/London'
-printf "London: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "London: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='Europe/Dublin'
-printf "Dublin: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Dublin: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
 
 export TZ='Europe/Moscow'
-printf "Moscow: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+printf "Moscow: \t %s \n" "$(date -d "$input_date" +"%Y-%m-%d %T %Z" )"
