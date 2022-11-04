@@ -29,11 +29,19 @@ while getopts "ht" opt; do
 
   shift $((OPTIND - 1)) # use positional arguments again
 
-prompted_time=$1
-echo "è inserita $prompted_time"
-prompted_TZ=$2
-echo "è inserita $prompted_TZ"
 
+# transform positional into named variables for good sake
+prompted_time=$1
+prompted_TZ=$2
+
+if [[ -n $3 ]]; then
+  echo """
+    too many variables, anything after and including "${bold}$3${normal}" is meaningless
+    have you quoted (eg \"date time\") the time you have entered?
+    """
+
+  exit
+fi
 
 # extracts the continent list
 continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
