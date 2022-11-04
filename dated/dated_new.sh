@@ -158,7 +158,7 @@ printf "Universal Coordinated time: $(date -d "$input_date" +"%Y-%m-%d %T %Z" -u
 printf "+---------------------------------------------------------+ \n"
 
 if [[ -n $to_timezone ]]; then
-  export TZ='$to_timezone'
+  export TZ="$to_timezone"
 
   printf "+---------------------------------------------------------+ \n"
   printf "Date of ${to_timezone} is: $(date -d "$input_date" +"%Y-%m-%d %T %Z"  ) \n"
