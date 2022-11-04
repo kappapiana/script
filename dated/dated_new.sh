@@ -8,9 +8,32 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 to_or_from="ENTERME"
+do_time="nothing"
 
-echo "$2"
+
 set -e  # fails on error
+
+while getopts "ht" opt; do
+   case ${opt} in
+
+     h)
+      echo "this is help"
+        exit
+      ;;
+
+     t)
+     do_time="true"
+     ;;
+    esac
+  done
+
+  shift $((OPTIND - 1)) # use positional arguments again
+
+prompted_time=$1
+echo "è inserita $prompted_time"
+prompted_TZ=$2
+echo "è inserita $prompted_TZ"
+
 
 # extracts the continent list
 continent_list=`timedatectl list-timezones | cut -f 1 -d / | sort | uniq`
@@ -53,69 +76,76 @@ function enter_continentcity() {
       done
     }
 
+# To enter date and timezone FROM which date will be calcluated
+# $from_timezone and $date are set.
 function get_values() {
-      echo "enter date: "
-      read date
-      
-      echo "enter timezone (leave blank for menu)"
-      read TZ
 
-      if [ -z $TZ ]; then
-      printf "\nSelect continent and city:\n\n"
+  if  [ -z $prompted_time ] ; then
 
+    echo "enter date: "
+    read date
+  else
+    echo "From date is already enterd, move on"
+    date="$prompted_time"
+  fi
+
+  if [[ -z $prompted_TZ ]]; then
+    echo "enter timezone (leave blank for menu)"
+    read TZ
+    from_timezone="$TZ"
+  else
+    echo "From timezone e is already enterd, move on"
+    from_timezone="$prompted_TZ"
+  fi
+
+  if [[ -z $from_timezone ]] ; then
+
+    #statements
+    printf "\nSelect continent and city:\n\n"
+
+    enter_continentcity
+
+      # use while loop to remain in the upper menu if BACK is entered
+
+      while  [ "$city" == "BACK" ]; do
           enter_continentcity
+      done
 
-          # use while loop to remain in the upper menu if BACK is entered
+      printf "\nYou have selected: \n${bold}$timezone ${normal}Timezone\n\n"
+      from_timezone=$timezone
+    fi
 
-          while  [ "$city" == "BACK" ]; do
-              enter_continentcity
-          done
-
-                printf "\nYou have selected: \n${bold}$timezone ${normal}Timezone\n\n"
-            from_timezone=$timezone
-
-          else
-            from_timezone=$TZ
-      fi
               }
 
+# To enter date and timezone TO which date will be calcluated
+# $to_timezone is set.
 function enter_to_timezone() {
 
+    # modify the prompt
     to_or_from="${bold}TO which${normal} time will be translated"
 
     printf "\n\nEnter the timezone ${bold}to which${normal} the time must be translated\n\n"
 
     enter_continentcity
 
-    to_or_from="CHANGEME"
-    totimezone="$timezone"
+    to_or_from="CHANGEME" # reset the variable
+    to_timezone="$timezone"
   }
 
-while getopts "ht" opt; do
-   case ${opt} in
 
-     h)
-      echo "this is help"
-        exit
-      ;;
-
-     t)
-     do_time="true"
-     ;;
-    esac
-  done
-
-shift $((OPTIND - 1)) # use positional arguments again
-
-if [ -z $1 ] ; then
-    to_or_from="${bold}FROM which${normal} time will be translated"
+# modify the prompt
+to_or_from="${bold}FROM which${normal} time will be translated"
+# interactively enter the timezone to
     get_values
-    to_or_from="CHANGEME"
-fi
+to_or_from="CHANGEME" # reset the variable
 
 
-
-if [ $do_time == "true" ]; then
+# if option is added, target timezone is entered
+if [ $do_time = "true" ]; then
   enter_to_timezone
-  echo "Timezone to is $totimezone"
+  echo "Timezone to is $to_timezone"
 fi
+
+echo "time from is $date "
+echo "timezone from is $from_timezone"
+echo "timezone to is $to_timezone"
