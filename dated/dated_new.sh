@@ -20,11 +20,12 @@ while getopts "ht" opt; do
       printf "\nusage: \n\n$0 [-t] [\"input_date input_time \"] [\"input_timezone\"]\n\n"
 
       printf """
-      \n-t\tuse to ask for inserting a specific timezone
+      \n-t\tuse to prompt for inserting a specific timezone ${bold}to which${normal} the date is displayed
       \totherwise the hardcoded ones are only showed
 
-      \tThe positional variables are evaluated, if they are not entered, the script
-      \twill ask for values. If you use arguments, encapsulate them within quotations
+      \tThe passed arguments are first evaluated; if they are not entered, the script
+      \twill ask for values. If you use arguments, it's better to encapsulate
+      \tthem within quotations.
 
       \tLeaving the Timezone ${bold}from which${normal} the date should be converted  blank
       \twill open a two-levels menut from which to choose.
