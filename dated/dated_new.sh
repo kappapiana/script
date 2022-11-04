@@ -149,3 +149,48 @@ fi
 echo "time from is $date "
 echo "timezone from is $from_timezone"
 echo "timezone to is $to_timezone"
+
+
+input_date="TZ=\"$from_timezone\" $date"
+
+printf "+---------------------------------------------------------+ \n"
+printf "Universal Coordinated time: $(date -d "$input_date" +"%Y-%m-%d %T %Z" -u ) \n"
+printf "+---------------------------------------------------------+ \n"
+
+if [[ -n $to_timezone ]]; then
+  export TZ='$to_timezone'
+
+  printf "+---------------------------------------------------------+ \n"
+  printf "Date of ${to_timezone} is: $(date -d "$input_date" +"%Y-%m-%d %T %Z"  ) \n"
+  printf "+---------------------------------------------------------+ \n"
+
+fi
+
+printf "+---------------------------------------------------------+ \n"
+echo "OTHER DATES"
+printf "+---------------------------------------------------------+ \n"
+
+
+export TZ='Europe/Amsterdam'
+printf "\nCentral European Time: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='America/Los_Angeles'
+printf "Los Angeles: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z") \n"
+
+export TZ='America/New_York'
+printf "New York: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z") \n"
+
+export TZ='Asia/Tokyo'
+printf "Tokyo: \t\t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Australia/Sydney'
+printf "Sydney: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Europe/London'
+printf "London: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Europe/Dublin'
+printf "Dublin: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
+
+export TZ='Europe/Moscow'
+printf "Moscow: \t $(date -d "$input_date" +"%Y-%m-%d %T %Z" ) \n"
