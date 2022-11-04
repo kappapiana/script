@@ -170,7 +170,7 @@ fi
 
 echo "time from is $date "
 echo "timezone from is $from_timezone"
-echo "timezone to is $to_timezone"
+
 
 
 input_date="TZ=\"$from_timezone\" $date"
