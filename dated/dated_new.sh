@@ -17,7 +17,7 @@ while getopts "ht" opt; do
    case ${opt} in
 
      h)
-      printf "\nusage: \n\n$0 [-t] [\"input_date input_time \"] [\"input_timezone\"]\n\n"
+      printf "\nusage: \n\n %s [-t] [\"input_date input_time \"] [\"input_timezone\"]\n\n" "$0"
 
       printf """
       \n-t\tuse to prompt for inserting a specific timezone ${bold}to which${normal} the date is displayed
@@ -39,6 +39,12 @@ while getopts "ht" opt; do
      t)
      do_time="true"
      ;;
+
+     *)
+     printf "\n%sWarning!%s: one or more flags are not understood, try -t for help\n\n" "${bold}" "${normal}"
+      exit
+     ;;
+
     esac
   done
 
@@ -51,7 +57,7 @@ prompted_TZ=$2
 
 if [[ -n $3 ]]; then
   echo """
-    too many variables, anything after and including "${bold}$3${normal}" is meaningless
+    too many variables, anything after and including \"${bold}$3${normal}\" is meaningless
     have you quoted (eg \"date time\") the time you have entered?
     """
 
