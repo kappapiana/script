@@ -17,7 +17,21 @@ while getopts "ht" opt; do
    case ${opt} in
 
      h)
-      echo "this is help"
+      printf "\nusage: \n\n$0 [-t] [\"input_date input_time \"] [\"input_timezone\"]\n\n"
+
+      printf """
+      \n-t\tuse to ask for inserting a specific timezone
+      \totherwise the hardcoded ones are only showed
+
+      \tThe positional variables are evaluated, if they are not entered, the script
+      \twill ask for values. If you use arguments, encapsulate them within quotations
+
+      \tLeaving the Timezone ${bold}from which${normal} the date should be converted  blank
+      \twill open a two-levels menut from which to choose.
+
+      """
+
+      printf "\n-h\tshows this help\n\n"
         exit
       ;;
 
