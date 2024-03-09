@@ -16,3 +16,4 @@ Some of these scripts may one day have a life of their own. Others are just quic
 ## Environment
 
 Everything is based on `bash` and targets `Debian` and Debian derivates, chiefly, `Ubuntu`.
+ciuccia
