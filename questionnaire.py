@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
 class Cobjects():
-    '''Counts objects that matches a pattern'''
+    '''Counts objects that start with a pattern + variable'''
     
     start = "variable_" # static variable
-
     def count_obj(self, letterona, values):
         '''passing the values and the letter'''
         total = 0
         count = 0
         for v in values:
             if v.startswith(Cobjects.start + letterona):
-                total += values[v]
-                count += 1
+                total += values[v] # adds found value (supposedly 1 or 0)
+                count += 1 # adds one to count
         return total, count
 
+# hardwired values
+# ======================
 values = {
   "variable_a_1": 1,
   "variable_a_2": 1,
@@ -27,11 +28,16 @@ values = {
   "variable_b_5": 1,
   "variable_c_1": 1,
   "model": "Mustang",
-  "year": 1964
+  "year": 1964sums_count
+sums_count
+sums_count
 }
+# ======================
 
-def check_step(question_10="Sì", question_14="Sì", values=None):
-    '''Checks if we go to step 1 or 2'''
+def check_step(question_10="Sì", question_14="Sì"):
+    '''Checks if we go to step 1 or 2
+    adds further letters to the list of checked variables'''
+    
     active = []
     if question_10 == "Sì":
         active = ["b"]
@@ -48,18 +54,18 @@ def count(letters, values):
     return count_result
 
 def main():
-    active_fields = ["a"]
-    print(active_fields)
-    active_fields = active_fields + check_step(values=values)
-    print(active_fields)
+    active_fields = ["a"] # non optional
+    active_fields = active_fields + check_step()
 
     result = count(active_fields, values)
 
     sums_values = sum(i for i, j in result)
-    sums_counts = sum(j for i, j in result)
-    score = sums_values / sums_counts * 100
+    sums_entries = sum(j for i, j in result)
+    score = sums_values / sums_entries * 100
 
-    print(sums_values, sums_counts)
+    # output
+
+    print(sums_values, sums_entries)
     print("score is: ", score, "%")
 
 if __name__ == '__main__':
