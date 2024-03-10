@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# NOW PORTED TO JAVASCRIPT TOO!
+# see questionnaire.js
+
 class Cobjects():
     '''Counts objects that start with a pattern + variable'''
     
