@@ -27,10 +27,8 @@ values = {
   "variable_b_4": 1,
   "variable_b_5": 1,
   "variable_c_1": 1,
+  "variable_c_2": 1,
   "model": "Mustang",
-  "year": 1964sums_count
-sums_count
-sums_count
 }
 # ======================
 
@@ -48,8 +46,9 @@ def check_step(question_10="Sì", question_14="Sì"):
 
 def count(letters, values):
     count_result = []
+    print(letters)
     for i in letters:
-        count_result.append(Cobjects().count_obj("a", values))
+        count_result.append(Cobjects().count_obj(i, values))
 
     return count_result
 
