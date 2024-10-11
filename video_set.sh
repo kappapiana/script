@@ -1,8 +1,22 @@
 #!/bin/bash
 
-#simple script to control the camera, eg. at start time
+# simple script to control the camera, eg. at start time
+# accepts arguments to shorten the default timeout
 
-sleep 10
+if [ -z ${1} ]
+
+then
+    time=10
+else
+    time=$1
+fi
+
+sleep $time
+
+# This is just my set of values, adapt them to your device. to know the current
+# set of the video, you can use my script video_set.sh or v4l2-ctl -d
+# [deviceNum] --list-ctrls 
+
 
 v4l2-ctl -d /dev/video2 -c brightness=125
 v4l2-ctl -d /dev/video2 -c contrast=108
