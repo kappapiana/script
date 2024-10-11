@@ -11,7 +11,7 @@ It's just a collection of random scripts, some can be useful, some are not.
 
 ## Future
 
-Some of these scripts may one day have a life of their own. Others are just quick & dirty stuff I need without much care as to how they are made. The ones mentioned above have received some more attention and are good candidates to go around.
+Some of these scripts may one day have a life of their own. Others are just quick & dirty stuff I need without much care as to how they are made. The ones mentioned above have received some more attention and are good candidates to go around. Pretty cool, ain't it?
 
 ## Environment
 
