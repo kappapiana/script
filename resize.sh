@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Resizes images to a 4:3 dimension, by adding space to one dimension and some padding to all of them
+# NOTE: works only with Imagemagick 6 or less (I think)
 
 # Define the target aspect ratio (4:3)
 TARGET_RATIO="1.3333333" # 4/3
