@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This has been vibecoded with Gemini use at your peril
+# I don't believe any copyright goes here
+
 # 1. Set the target directory
 # Uses the first argument provided, or defaults to current folder (.)
 DIR="${1:-.}"
