@@ -7,7 +7,7 @@
 TARGET_RATIO="1.3333333" # 4/3
 
 # --- NEW: Define padding as a percentage of the largest dimension ---
-PADDING_PERCENT="5"      # 5% (You can change this value)
+PADDING_PERCENT="10"      # 5% (You can change this value)
 
 # Input and output file names
 INPUT_FILE="$1"
