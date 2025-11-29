@@ -67,6 +67,11 @@ fi
 echo "--- Step 3: Opening GIMP ---"
 # Reminder for the user
 echo "IMPORTANT: In the GIMP dialog, ensure you select 'Open pages as: Layers'"
-gimp $OUTPUT_FILE &
+
+if which gimp; then
+    gimp $OUTPUT_FILE & # try to use gimp if installed
+else
+    /usr/bin/flatpak run org.gimp.GIMP $OUTPUT_FILE & #maybe it's installed via flatpack
+fi 
 
 echo "Done."
