@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # HDR RAW Stack - Align and blend bracketed exposures into a single HDR image.
-# Linux only. Requires: hugin-tools, enblend-enfuse, dcraw
+# Linux only. Requires: hugin-tools, enblend-enfuse, darktable-cli
 #
 # Usage: ./hdr_stack_raw.sh [directory|file1 file2 ...]
 #   With directory: process all RAW files in that folder
@@ -17,14 +17,14 @@ fi
 
 # --- Dependency check ---
 MISSING=()
-for cmd in align_image_stack enfuse dcraw; do
+for cmd in align_image_stack enfuse darktable-cli; do
     if ! command -v "$cmd" &> /dev/null; then
         MISSING+=("$cmd")
     fi
 done
 if [ ${#MISSING[@]} -gt 0 ]; then
     echo "Error: Missing required tools: ${MISSING[*]}"
-    echo "Install with: sudo apt install hugin-tools enblend-enfuse dcraw"
+    echo "Install with: sudo apt install hugin-tools enblend-enfuse darktable"
     exit 1
 fi
 
@@ -90,14 +90,15 @@ for f in "${FILES[@]}"; do
         OTHER_FILES+=("$f")
     fi
 done
-# Exclude TIFF/PNG/JPG that share base name with a RAW (dcraw will produce the TIFF)
+# Exclude TIFF/PNG/JPG that share base name with a RAW (darktable will produce the TIFF)
+# Also exclude artifacts like IMG_3090.tif.tif when we have IMG_3090.CR3
 FILTERED_OTHER=()
 for f in "${OTHER_FILES[@]}"; do
     base_name=$(basename "${f%.*}")
     skip=0
     for raw in "${RAW_FILES[@]}"; do
         raw_base=$(basename "${raw%.*}")
-        if [[ "$base_name" == "$raw_base" ]]; then
+        if [[ "$base_name" == "$raw_base" ]] || [[ "$base_name" == "$raw_base".* ]]; then
             skip=1
             break
         fi
@@ -106,20 +107,24 @@ for f in "${OTHER_FILES[@]}"; do
 done
 OTHER_FILES=("${FILTERED_OTHER[@]}")
 
-# --- Convert RAW to 16-bit linear TIFF ---
+# --- Convert RAW to 16-bit TIFF with darktable ---
 TO_ALIGN=()
 if [ ${#RAW_FILES[@]} -gt 0 ]; then
-    echo "--- Step 1: Converting ${#RAW_FILES[@]} RAW file(s) to 16-bit linear TIFF ---"
+    echo "--- Step 1: Converting ${#RAW_FILES[@]} RAW file(s) to 16-bit TIFF ---"
     for raw in "${RAW_FILES[@]}"; do
         base="${raw%.*}"
+        # darktable appends format extension; use base name so we get base.tif
         tif_out="${base}.tif"
-        # dcraw -4: 16-bit linear, -T: TIFF output, -w: use camera white balance
-        dcraw -4 -T -w "$raw"
+        # darktable-cli: 16-bit TIFF, supports CR2/CR3/NEF/ARW/DNG etc.
+        # --apply-custom-presets false: avoid database lock when GUI is open
+        darktable-cli "$raw" "$base" --out-ext tiff \
+            --apply-custom-presets false \
+            --core --conf plugins/imageio/format/tiff/bpp=16
         if [ -f "$tif_out" ]; then
             CONVERTED_TIFFS+=("$tif_out")
             TO_ALIGN+=("$tif_out")
         else
-            echo "Warning: dcraw did not produce output for $raw"
+            echo "Warning: darktable-cli did not produce output for $raw"
         fi
     done
 fi
@@ -166,9 +171,10 @@ trap cleanup EXIT INT TERM
 
 # --- Step 2: Align images ---
 echo "--- Step 2: Aligning $COUNT images (this may take a moment) ---"
-# -l: Linear input (RAW-derived TIFFs), -a: output prefix, -m: optimize FoV (handheld)
-# -C: Auto crop, -c 25: control points, -v: verbose
-align_image_stack -l -a "$TEMP_PREFIX" -m -v -C -c 25 "${TO_ALIGN[@]}"
+# -a: output prefix, -m: optimize FoV (handheld), -C: Auto crop
+# -c 25: control points, -v: verbose
+# (no -l: darktable output is not linear; -l only for dcraw-style linear TIFFs)
+align_image_stack -a "$TEMP_PREFIX" -m -v -C -c 25 "${TO_ALIGN[@]}"
 
 if [ ! -f "${TEMP_PREFIX}0000.tif" ]; then
     echo "Error: Alignment failed."
