@@ -8,6 +8,8 @@ set -euo pipefail
 #   With directory: process all RAW files in that folder
 #   With files: process the given RAW/TIFF/PNG/JPG files
 # Output: HDR_YYYYMMDD_HHMMSS.tif in the same directory
+# Please note that this is just an example of AI generated script
+# don't use unless you know absolutely what it does.
 
 # --- Linux check ---
 if [ "$(uname -s)" != "Linux" ]; then
