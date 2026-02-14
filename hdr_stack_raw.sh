@@ -197,12 +197,13 @@ else
     EXIF_SOURCES=("${TO_ALIGN[@]}")
 fi
 
+# numeric: 0=string, 1=numeric (average), 2=raw enum (read -n, write with # suffix)
 merge_exif_tag() {
     local tag="$1"
-    local numeric="$2"  # 1=numeric (average if differ), 0=string ("several values" if differ)
+    local numeric="$2"
     local values=()
     local exif_opts="-s3"
-    [[ "$numeric" -eq 1 ]] && exif_opts="-s3 -n"
+    [[ "$numeric" -eq 1 ]] || [[ "$numeric" -eq 2 ]] && exif_opts="-s3 -n"
     for src in "${EXIF_SOURCES[@]}"; do
         local val
         val=$(exiftool -"$tag" $exif_opts "$src" 2>/dev/null || true)
@@ -215,21 +216,49 @@ merge_exif_tag() {
         [[ "$v" != "$first" ]] && { all_same=0; break; }
     done
     if [[ "$all_same" -eq 1 ]]; then
-        exiftool -overwrite_original "-$tag=$first" "$OUTPUT_FILE" 2>/dev/null || true
+        if [[ "$numeric" -eq 2 ]]; then
+            exiftool -overwrite_original "-${tag}#=$first" "$OUTPUT_FILE" 2>/dev/null || true
+        else
+            exiftool -overwrite_original "-$tag=$first" "$OUTPUT_FILE" 2>/dev/null || true
+        fi
     elif [[ "$numeric" -eq 1 ]]; then
         local avg
         avg=$(printf '%s\n' "${values[@]}" | awk '{ sum+=$1; n++ } END { if(n>0) printf "%.4f", sum/n }')
         [[ -n "$avg" ]] && exiftool -overwrite_original "-$tag=$avg" "$OUTPUT_FILE" 2>/dev/null || true
+    elif [[ "$numeric" -eq 2 ]]; then
+        exiftool -overwrite_original "-${tag}#=$first" "$OUTPUT_FILE" 2>/dev/null || true
     else
         exiftool -overwrite_original "-$tag=several values" "$OUTPUT_FILE" 2>/dev/null || true
+    fi
+}
+
+# Try tag1 first; if no values, use tag2. Writes to tag1.
+merge_exif_tag_fallback() {
+    local tag1="$1" tag2="$2"
+    local values=()
+    for src in "${EXIF_SOURCES[@]}"; do
+        local val
+        val=$(exiftool -"$tag1" -s3 "$src" 2>/dev/null || true)
+        [[ -z "$val" ]] && val=$(exiftool -"$tag2" -s3 "$src" 2>/dev/null || true)
+        [[ -n "$val" ]] && values+=("$val")
+    done
+    [[ ${#values[@]} -eq 0 ]] && return
+    local first="${values[0]}"
+    local all_same=1
+    for v in "${values[@]}"; do
+        [[ "$v" != "$first" ]] && { all_same=0; break; }
+    done
+    if [[ "$all_same" -eq 1 ]]; then
+        exiftool -overwrite_original "-$tag1=$first" "$OUTPUT_FILE" 2>/dev/null || true
+    else
+        exiftool -overwrite_original "-$tag1=several values" "$OUTPUT_FILE" 2>/dev/null || true
     fi
 }
 
 echo "--- Step 4: Preserving EXIF metadata ---"
 merge_exif_tag "Make" 0
 merge_exif_tag "Model" 0
-merge_exif_tag "LensModel" 0
-merge_exif_tag "LensID" 0
+merge_exif_tag_fallback "LensModel" "LensID"
 merge_exif_tag "LensMake" 0
 merge_exif_tag "LensSerialNumber" 0
 merge_exif_tag "LensDescription" 0
@@ -239,10 +268,10 @@ merge_exif_tag "FNumber" 1
 merge_exif_tag "ApertureValue" 1
 merge_exif_tag "ExposureTime" 1
 merge_exif_tag "ShutterSpeedValue" 1
-merge_exif_tag "ExposureProgram" 0
-merge_exif_tag "MeteringMode" 0
-merge_exif_tag "WhiteBalance" 0
-merge_exif_tag "Flash" 0
+merge_exif_tag "ExposureProgram" 2
+merge_exif_tag "MeteringMode" 2
+merge_exif_tag "WhiteBalance" 2
+merge_exif_tag "Flash" 2
 merge_exif_tag "FocalLength" 1
 merge_exif_tag "ISO" 1
 merge_exif_tag "ISOSpeedRatings" 1
@@ -260,12 +289,6 @@ merge_exif_tag "GPSAltitude" 1
 merge_exif_tag "GPSAltitudeRef" 0
 merge_exif_tag "DateTimeOriginal" 0
 merge_exif_tag "CreateDate" 0
-# Canon CR3 often has LensModel empty; use LensID as fallback
-lensmodel=$(exiftool -LensModel -s3 "$OUTPUT_FILE" 2>/dev/null || true)
-if [[ -z "$lensmodel" ]]; then
-    lensid=$(exiftool -LensID -s3 "$OUTPUT_FILE" 2>/dev/null || true)
-    [[ -n "$lensid" ]] && exiftool -overwrite_original -LensModel="$lensid" "$OUTPUT_FILE" 2>/dev/null || true
-fi
 exiftool -overwrite_original -UserComment="HDR Stacked with @hdr_stack_raw.sh" "$OUTPUT_FILE" 2>/dev/null || true
 
 # Clear trap so we don't remove output; cleanup aligned temp files only
