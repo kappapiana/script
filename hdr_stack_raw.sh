@@ -224,6 +224,8 @@ merge_exif_tag() {
 }
 
 echo "--- Step 4: Preserving EXIF metadata ---"
+merge_exif_tag "Make" 0
+merge_exif_tag "Model" 0
 merge_exif_tag "LensModel" 0
 merge_exif_tag "LensID" 0
 merge_exif_tag "FNumber" 1
@@ -248,7 +250,7 @@ merge_exif_tag "GPSAltitude" 1
 merge_exif_tag "GPSAltitudeRef" 0
 merge_exif_tag "DateTimeOriginal" 0
 merge_exif_tag "CreateDate" 0
-exiftool -overwrite_original -UserComment="created with @hdr_stack_raw.sh" "$OUTPUT_FILE" 2>/dev/null || true
+exiftool -overwrite_original -UserComment="HDR Stacked with @hdr_stack_raw.sh" "$OUTPUT_FILE" 2>/dev/null || true
 
 # Clear trap so we don't remove output; cleanup aligned temp files only
 trap - EXIT INT TERM
