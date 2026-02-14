@@ -201,9 +201,11 @@ merge_exif_tag() {
     local tag="$1"
     local numeric="$2"  # 1=numeric (average if differ), 0=string ("several values" if differ)
     local values=()
+    local exif_opts="-s3"
+    [[ "$numeric" -eq 1 ]] && exif_opts="-s3 -n"
     for src in "${EXIF_SOURCES[@]}"; do
         local val
-        val=$(exiftool -"$tag" -s3 -n "$src" 2>/dev/null || true)
+        val=$(exiftool -"$tag" $exif_opts "$src" 2>/dev/null || true)
         [[ -n "$val" ]] && values+=("$val")
     done
     [[ ${#values[@]} -eq 0 ]] && return
@@ -213,13 +215,13 @@ merge_exif_tag() {
         [[ "$v" != "$first" ]] && { all_same=0; break; }
     done
     if [[ "$all_same" -eq 1 ]]; then
-        exiftool -overwrite_original -"$tag=$first" "$OUTPUT_FILE" 2>/dev/null || true
+        exiftool -overwrite_original "-$tag=$first" "$OUTPUT_FILE" 2>/dev/null || true
     elif [[ "$numeric" -eq 1 ]]; then
         local avg
         avg=$(printf '%s\n' "${values[@]}" | awk '{ sum+=$1; n++ } END { if(n>0) printf "%.4f", sum/n }')
-        [[ -n "$avg" ]] && exiftool -overwrite_original -"$tag=$avg" "$OUTPUT_FILE" 2>/dev/null || true
+        [[ -n "$avg" ]] && exiftool -overwrite_original "-$tag=$avg" "$OUTPUT_FILE" 2>/dev/null || true
     else
-        exiftool -overwrite_original -"$tag=several values" "$OUTPUT_FILE" 2>/dev/null || true
+        exiftool -overwrite_original "-$tag=several values" "$OUTPUT_FILE" 2>/dev/null || true
     fi
 }
 
@@ -228,6 +230,11 @@ merge_exif_tag "Make" 0
 merge_exif_tag "Model" 0
 merge_exif_tag "LensModel" 0
 merge_exif_tag "LensID" 0
+merge_exif_tag "LensMake" 0
+merge_exif_tag "LensSerialNumber" 0
+merge_exif_tag "LensDescription" 0
+merge_exif_tag "LensInfo" 0
+merge_exif_tag "LensSpecification" 0
 merge_exif_tag "FNumber" 1
 merge_exif_tag "ApertureValue" 1
 merge_exif_tag "ExposureTime" 1
@@ -253,6 +260,12 @@ merge_exif_tag "GPSAltitude" 1
 merge_exif_tag "GPSAltitudeRef" 0
 merge_exif_tag "DateTimeOriginal" 0
 merge_exif_tag "CreateDate" 0
+# Canon CR3 often has LensModel empty; use LensID as fallback
+lensmodel=$(exiftool -LensModel -s3 "$OUTPUT_FILE" 2>/dev/null || true)
+if [[ -z "$lensmodel" ]]; then
+    lensid=$(exiftool -LensID -s3 "$OUTPUT_FILE" 2>/dev/null || true)
+    [[ -n "$lensid" ]] && exiftool -overwrite_original -LensModel="$lensid" "$OUTPUT_FILE" 2>/dev/null || true
+fi
 exiftool -overwrite_original -UserComment="HDR Stacked with @hdr_stack_raw.sh" "$OUTPUT_FILE" 2>/dev/null || true
 
 # Clear trap so we don't remove output; cleanup aligned temp files only
