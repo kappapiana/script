@@ -232,6 +232,9 @@ merge_exif_tag "FNumber" 1
 merge_exif_tag "ApertureValue" 1
 merge_exif_tag "ExposureTime" 1
 merge_exif_tag "ShutterSpeedValue" 1
+merge_exif_tag "ExposureProgram" 0
+merge_exif_tag "MeteringMode" 0
+merge_exif_tag "WhiteBalance" 0
 merge_exif_tag "Flash" 0
 merge_exif_tag "FocalLength" 1
 merge_exif_tag "ISO" 1
