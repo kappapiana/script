@@ -82,6 +82,9 @@ if command -v convert &> /dev/null; then
     fi
 else
     echo "ImageMagick not found. Leaving aligned files separate."
+    # Clean up temp files on interrupt (INT/TERM); keep on normal exit for GIMP
+    trap 'rm -f "${TEMP_PREFIX}"*.tif 2>/dev/null' INT TERM
+
     echo "--- Step 3: Opening GIMP ---"
     echo "IMPORTANT: In the GIMP dialog, ensure you select 'Open pages as: Layers'"
 
