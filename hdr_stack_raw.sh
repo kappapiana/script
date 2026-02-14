@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # HDR RAW Stack - Align and blend bracketed exposures into a single HDR image.
-# Linux only. Requires: hugin-tools, enblend-enfuse, darktable-cli
+# Linux only. Requires: hugin-tools, enblend-enfuse, darktable-cli, exiftool
 #
 # Usage: ./hdr_stack_raw.sh [directory|file1 file2 ...]
 #   With directory: process all RAW files in that folder
@@ -19,14 +19,14 @@ fi
 
 # --- Dependency check ---
 MISSING=()
-for cmd in align_image_stack enfuse darktable-cli; do
+for cmd in align_image_stack enfuse darktable-cli exiftool; do
     if ! command -v "$cmd" &> /dev/null; then
         MISSING+=("$cmd")
     fi
 done
 if [ ${#MISSING[@]} -gt 0 ]; then
     echo "Error: Missing required tools: ${MISSING[*]}"
-    echo "Install with: sudo apt install hugin-tools enblend-enfuse darktable"
+    echo "Install with: sudo apt install hugin-tools enblend-enfuse darktable libimage-exiftool-perl"
     exit 1
 fi
 
@@ -187,6 +187,68 @@ fi
 OUTPUT_FILE="HDR_$(date +%Y%m%d_%H%M%S).tif"
 echo "--- Step 3: Blending exposures into $OUTPUT_FILE ---"
 enfuse -o "$OUTPUT_FILE" -v "${TEMP_PREFIX}"*.tif
+
+# --- Step 4: Preserve EXIF metadata (merge from all sources) ---
+# If values match: use as-is. If numeric and differ: average. If string and differ: "several values"
+EXIF_SOURCES=()
+if [ ${#RAW_FILES[@]} -gt 0 ]; then
+    EXIF_SOURCES=("${RAW_FILES[@]}")
+else
+    EXIF_SOURCES=("${TO_ALIGN[@]}")
+fi
+
+merge_exif_tag() {
+    local tag="$1"
+    local numeric="$2"  # 1=numeric (average if differ), 0=string ("several values" if differ)
+    local values=()
+    for src in "${EXIF_SOURCES[@]}"; do
+        local val
+        val=$(exiftool -"$tag" -s3 -n "$src" 2>/dev/null || true)
+        [[ -n "$val" ]] && values+=("$val")
+    done
+    [[ ${#values[@]} -eq 0 ]] && return
+    local first="${values[0]}"
+    local all_same=1
+    for v in "${values[@]}"; do
+        [[ "$v" != "$first" ]] && { all_same=0; break; }
+    done
+    if [[ "$all_same" -eq 1 ]]; then
+        exiftool -overwrite_original -"$tag=$first" "$OUTPUT_FILE" 2>/dev/null || true
+    elif [[ "$numeric" -eq 1 ]]; then
+        local avg
+        avg=$(printf '%s\n' "${values[@]}" | awk '{ sum+=$1; n++ } END { if(n>0) printf "%.4f", sum/n }')
+        [[ -n "$avg" ]] && exiftool -overwrite_original -"$tag=$avg" "$OUTPUT_FILE" 2>/dev/null || true
+    else
+        exiftool -overwrite_original -"$tag=several values" "$OUTPUT_FILE" 2>/dev/null || true
+    fi
+}
+
+echo "--- Step 4: Preserving EXIF metadata ---"
+merge_exif_tag "LensModel" 0
+merge_exif_tag "LensID" 0
+merge_exif_tag "FNumber" 1
+merge_exif_tag "ApertureValue" 1
+merge_exif_tag "ExposureTime" 1
+merge_exif_tag "ShutterSpeedValue" 1
+merge_exif_tag "Flash" 0
+merge_exif_tag "FocalLength" 1
+merge_exif_tag "ISO" 1
+merge_exif_tag "ISOSpeedRatings" 1
+merge_exif_tag "Keywords" 0
+merge_exif_tag "XMP-dc:Subject" 0
+merge_exif_tag "Artist" 0
+merge_exif_tag "XMP-dc:Creator" 0
+merge_exif_tag "Copyright" 0
+merge_exif_tag "XMP-dc:Rights" 0
+merge_exif_tag "GPSLongitude" 1
+merge_exif_tag "GPSLongitudeRef" 0
+merge_exif_tag "GPSLatitude" 1
+merge_exif_tag "GPSLatitudeRef" 0
+merge_exif_tag "GPSAltitude" 1
+merge_exif_tag "GPSAltitudeRef" 0
+merge_exif_tag "DateTimeOriginal" 0
+merge_exif_tag "CreateDate" 0
+exiftool -overwrite_original -UserComment="created with @hdr_stack_raw.sh" "$OUTPUT_FILE" 2>/dev/null || true
 
 # Clear trap so we don't remove output; cleanup aligned temp files only
 trap - EXIT INT TERM
