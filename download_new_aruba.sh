@@ -6,8 +6,9 @@ FILENAME_PREFIX="ArubaSign(standard)-lin-x64-25"
 EXT=".tar.bz2"
 
 # Starting points (Adjust based on your last successful download)
-MINOR=1
-BUILD=0
+MINOR=0
+BUILD=16
+
 
 echo "--- Ubuntu Mogul: Verbose Version Scanner ---"
 echo "Targeting Base: $BASE_URL"
@@ -43,6 +44,8 @@ while [ $MINOR -le 99 ]; do
         fi
 
         BUILD=$((BUILD + 1))
+
+        sleep 0.5
     done
     
     # Reset build to 0 and move to next minor version
