@@ -36,6 +36,36 @@ echo "Targeting Base: $BASE_URL"
 echo "Download dir: $DOWNLOAD_DIR"
 echo "---------------------------------------------"
 
+LAST_FOUND_URL=""
+LAST_FOUND_VERSION=""
+LOOKAHEAD=0
+
+download_last() {
+    echo "---------------------------------------------"
+    echo "Downloading $LAST_FOUND_VERSION..."
+    wget -P "$DOWNLOAD_DIR" "$LAST_FOUND_URL"
+    exit 0
+}
+
+ask_after_lookahead() {
+    while true; do
+        read -r -p "No newer build in the last 10. Look 10+ more, or download $LAST_FOUND_VERSION? [10/d]: " choice
+        case "$choice" in
+            10)
+                LOOKAHEAD=10
+                echo "Looking 10 more builds ahead..."
+                return
+                ;;
+            d|D)
+                download_last
+                ;;
+            *)
+                echo "Enter 10 or d"
+                ;;
+        esac
+    done
+}
+
 while [ $MINOR -le 99 ]; do
     while [ $BUILD -le 99 ]; do
         # Format logic for 25.0.x vs 25.01.x
@@ -56,13 +86,31 @@ while [ $MINOR -le 99 ]; do
         if [ "$HTTP_STATUS" -eq 200 ]; then
             echo "[200 OK]"
             echo "---------------------------------------------"
-            echo "MATCH FOUND! Downloading $VERSION..."
-            wget -P "$DOWNLOAD_DIR" "$FULL_URL"
-            exit 0
+            echo "MATCH FOUND: $VERSION"
+            LAST_FOUND_URL="$FULL_URL"
+            LAST_FOUND_VERSION="$VERSION"
+            LOOKAHEAD=0
+            read -r -p "Attempt finding 10+ builds? [y/N]: " continue_search
+            case "$continue_search" in
+                y|Y)
+                    LOOKAHEAD=10
+                    echo "Looking 10 more builds ahead..."
+                    ;;
+                *)
+                    download_last
+                    ;;
+            esac
         elif [ "$HTTP_STATUS" -eq 404 ]; then
             echo "[404]"
         else
             echo "[HTTP $HTTP_STATUS]"
+        fi
+
+        if [ "$HTTP_STATUS" -ne 200 ] && [ "$LOOKAHEAD" -gt 0 ]; then
+            LOOKAHEAD=$((LOOKAHEAD - 1))
+            if [ "$LOOKAHEAD" -eq 0 ]; then
+                ask_after_lookahead
+            fi
         fi
 
         BUILD=$((BUILD + 1))
@@ -74,5 +122,10 @@ while [ $MINOR -le 99 ]; do
     BUILD=0
     MINOR=$((MINOR + 1))
 done
+
+if [ -n "$LAST_FOUND_URL" ]; then
+    echo "Search limit reached."
+    download_last
+fi
 
 echo "Search complete. No new files found up to minor version 99."
