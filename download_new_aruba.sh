@@ -8,6 +8,7 @@ EXT=".tar.bz2"
 # Starting points (Adjust based on your last successful download)
 MINOR=0
 BUILD=1
+DOWNLOAD_DIR="${HOME}/Downloads"
 
 if [ -n "$1" ]; then
     MINOR=$1
@@ -17,8 +18,22 @@ if [ -n "$2" ]; then
     BUILD=$2
 fi
 
+ATTEMPTS=0
+while [ ! -d "$DOWNLOAD_DIR" ]; do
+    ATTEMPTS=$((ATTEMPTS + 1))
+    if [ "$ATTEMPTS" -gt 4 ]; then
+        echo "this ain't working"
+        exit 1
+    fi
+    echo "Download directory does not exist: $DOWNLOAD_DIR"
+    read -r -p "Enter a different download directory: " DOWNLOAD_DIR
+    # Expand ~ if the user typed it literally
+    DOWNLOAD_DIR="${DOWNLOAD_DIR/#\~/$HOME}"
+done
+
 echo "--- Ubuntu Mogul: Verbose Version Scanner ---"
 echo "Targeting Base: $BASE_URL"
+echo "Download dir: $DOWNLOAD_DIR"
 echo "---------------------------------------------"
 
 while [ $MINOR -le 99 ]; do
@@ -42,7 +57,7 @@ while [ $MINOR -le 99 ]; do
             echo "[200 OK]"
             echo "---------------------------------------------"
             echo "MATCH FOUND! Downloading $VERSION..."
-            wget -P ~/Downloads/ "$FULL_URL"
+            wget -P "$DOWNLOAD_DIR" "$FULL_URL"
             exit 0
         elif [ "$HTTP_STATUS" -eq 404 ]; then
             echo "[404]"
