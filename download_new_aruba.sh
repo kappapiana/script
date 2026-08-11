@@ -6,8 +6,8 @@ FILENAME_PREFIX="ArubaSign(standard)-lin-x64-25"
 EXT=".tar.bz2"
 
 # Starting points (Adjust based on your last successful download)
-MINOR=1
-BUILD=0
+MINOR=0
+BUILD=1
 
 if [ -n "$1" ]; then
     MINOR=$1
