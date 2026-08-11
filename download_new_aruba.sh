@@ -6,9 +6,16 @@ FILENAME_PREFIX="ArubaSign(standard)-lin-x64-25"
 EXT=".tar.bz2"
 
 # Starting points (Adjust based on your last successful download)
-MINOR=0
-BUILD=16
+MINOR=1
+BUILD=0
 
+if [ -n "$1" ]; then
+    MINOR=$1
+fi
+
+if [ -n "$2" ]; then
+    BUILD=$2
+fi
 
 echo "--- Ubuntu Mogul: Verbose Version Scanner ---"
 echo "Targeting Base: $BASE_URL"
@@ -35,7 +42,7 @@ while [ $MINOR -le 99 ]; do
             echo "[200 OK]"
             echo "---------------------------------------------"
             echo "MATCH FOUND! Downloading $VERSION..."
-            wget "$FULL_URL"
+            wget -P ~/Downloads/ "$FULL_URL"
             exit 0
         elif [ "$HTTP_STATUS" -eq 404 ]; then
             echo "[404]"
