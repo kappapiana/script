@@ -61,6 +61,18 @@ if [ "$#" -eq 1 ] && [ -d "$1" ]; then
 
     # Deduplicate and sort
     mapfile -t FILES < <(printf '%s\n' "${FILES[@]}" | sort -u)
+
+    # Exclude this script's own output and any leftover temp alignment
+    # files from a previous run, so re-running in the same directory
+    # doesn't feed them back in as source images.
+    PRUNED=()
+    for f in "${FILES[@]}"; do
+        case "$f" in
+            HDR_*.tif|"$TEMP_PREFIX"*.tif) continue ;;
+        esac
+        PRUNED+=("$f")
+    done
+    FILES=("${PRUNED[@]}")
 else
     # File list provided
     FILES=("$@")
@@ -72,6 +84,8 @@ else
     for f in "${FILES[@]}"; do
         if [ -f "$f" ]; then
             RESOLVED+=("$(cd "$(dirname "$f")" && pwd)/$(basename "$f")")
+        elif [ -d "$f" ]; then
+            echo "Warning: Skipping directory (only a single directory argument is supported): $f"
         else
             echo "Warning: Skipping non-existent file: $f"
         fi
@@ -178,8 +192,11 @@ echo "--- Step 2: Aligning $COUNT images (this may take a moment) ---"
 # (no -l: darktable output is not linear; -l only for dcraw-style linear TIFFs)
 align_image_stack -a "$TEMP_PREFIX" -m -v -C -c 25 "${TO_ALIGN[@]}"
 
-if [ ! -f "${TEMP_PREFIX}0000.tif" ]; then
-    echo "Error: Alignment failed."
+shopt -s nullglob
+ALIGNED_FILES=("${TEMP_PREFIX}"*.tif)
+shopt -u nullglob
+if [ ${#ALIGNED_FILES[@]} -ne "$COUNT" ]; then
+    echo "Error: Alignment produced ${#ALIGNED_FILES[@]} of $COUNT expected image(s)."
     exit 1
 fi
 
@@ -226,7 +243,11 @@ merge_exif_tag() {
         avg=$(printf '%s\n' "${values[@]}" | awk '{ sum+=$1; n++ } END { if(n>0) printf "%.4f", sum/n }')
         [[ -n "$avg" ]] && exiftool -overwrite_original "-$tag=$avg" "$OUTPUT_FILE" 2>/dev/null || true
     elif [[ "$numeric" -eq 2 ]]; then
-        exiftool -overwrite_original "-${tag}#=$first" "$OUTPUT_FILE" 2>/dev/null || true
+        # Enum tag with differing values across brackets: it's a numeric-typed
+        # tag, so we can't write "several values" into it like a string tag.
+        # Leave it unset rather than silently attributing one bracket's value
+        # to the merged file as if all sources agreed.
+        echo "Note: $tag differs across sources; leaving unset in $OUTPUT_FILE."
     else
         exiftool -overwrite_original "-$tag=several values" "$OUTPUT_FILE" 2>/dev/null || true
     fi
