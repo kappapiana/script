@@ -214,6 +214,11 @@ else
     EXIF_SOURCES=("${TO_ALIGN[@]}")
 fi
 
+# Collected here instead of writing $OUTPUT_FILE on every call, so the
+# (potentially large) merged TIFF gets rewritten once at the end instead of
+# once per tag.
+WRITE_ARGS=()
+
 # numeric: 0=string, 1=numeric (average), 2=raw enum (read -n, write with # suffix)
 merge_exif_tag() {
     local tag="$1"
@@ -234,14 +239,14 @@ merge_exif_tag() {
     done
     if [[ "$all_same" -eq 1 ]]; then
         if [[ "$numeric" -eq 2 ]]; then
-            exiftool -overwrite_original "-${tag}#=$first" "$OUTPUT_FILE" 2>/dev/null || true
+            WRITE_ARGS+=("-${tag}#=$first")
         else
-            exiftool -overwrite_original "-$tag=$first" "$OUTPUT_FILE" 2>/dev/null || true
+            WRITE_ARGS+=("-$tag=$first")
         fi
     elif [[ "$numeric" -eq 1 ]]; then
         local avg
         avg=$(printf '%s\n' "${values[@]}" | awk '{ sum+=$1; n++ } END { if(n>0) printf "%.4f", sum/n }')
-        [[ -n "$avg" ]] && exiftool -overwrite_original "-$tag=$avg" "$OUTPUT_FILE" 2>/dev/null || true
+        [[ -n "$avg" ]] && WRITE_ARGS+=("-$tag=$avg")
     elif [[ "$numeric" -eq 2 ]]; then
         # Enum tag with differing values across brackets: it's a numeric-typed
         # tag, so we can't write "several values" into it like a string tag.
@@ -249,7 +254,7 @@ merge_exif_tag() {
         # to the merged file as if all sources agreed.
         echo "Note: $tag differs across sources; leaving unset in $OUTPUT_FILE."
     else
-        exiftool -overwrite_original "-$tag=several values" "$OUTPUT_FILE" 2>/dev/null || true
+        WRITE_ARGS+=("-$tag=several values")
     fi
 }
 
@@ -270,9 +275,9 @@ merge_exif_tag_fallback() {
         [[ "$v" != "$first" ]] && { all_same=0; break; }
     done
     if [[ "$all_same" -eq 1 ]]; then
-        exiftool -overwrite_original "-$tag1=$first" "$OUTPUT_FILE" 2>/dev/null || true
+        WRITE_ARGS+=("-$tag1=$first")
     else
-        exiftool -overwrite_original "-$tag1=several values" "$OUTPUT_FILE" 2>/dev/null || true
+        WRITE_ARGS+=("-$tag1=several values")
     fi
 }
 
@@ -310,7 +315,12 @@ merge_exif_tag "GPSAltitude" 1
 merge_exif_tag "GPSAltitudeRef" 0
 merge_exif_tag "DateTimeOriginal" 0
 merge_exif_tag "CreateDate" 0
-exiftool -overwrite_original -UserComment="HDR Stacked with @hdr_stack_raw.sh" "$OUTPUT_FILE" 2>/dev/null || true
+WRITE_ARGS+=("-UserComment=HDR Stacked with @hdr_stack_raw.sh")
+
+# Single rewrite of $OUTPUT_FILE with every collected tag, instead of one
+# rewrite per tag. -m ignores minor errors on individual tags so one bad
+# assignment doesn't block the rest from being written.
+exiftool -overwrite_original -m "${WRITE_ARGS[@]}" "$OUTPUT_FILE" 2>/dev/null || true
 
 # Clear trap so we don't remove output; cleanup aligned temp files only
 trap - EXIT INT TERM
