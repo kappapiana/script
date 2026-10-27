@@ -147,5 +147,5 @@ fi
 
 echo
 say "Done. git identity here: $(git config user.name || echo '?') <$(git config user.email || echo '?')>"
-echo "Backup of everything touched: $backup_dir"
+[ -d "$backup_dir" ] && echo "Backup of everything touched: $backup_dir"
 [ -f "$HOME/.bashrc" ] && echo "Open a new terminal (or: source ~/.bashrc) to load shell changes."
