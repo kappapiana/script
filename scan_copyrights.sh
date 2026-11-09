@@ -66,7 +66,7 @@ for recipe in */; do
   echo
   echo "[$(date '+%F %T')] processing $recipe -> $rname   (log: $log)"
   mkdir -p "$dest"
-  rm -f "$dest/.done"
+  rm -f "$dest/.done" "$raw"   # drop partial output from an earlier failed run
 
   tcmd=()
   [[ $RECIPE_TIMEOUT != 0 ]] && tcmd=(timeout --kill-after=60 "$RECIPE_TIMEOUT")
@@ -103,7 +103,10 @@ for recipe in */; do
   # results were fully written before the hang, so treat it as success
   (( hung )) && grep -q 'Scanning done\.' "$log" && rc=0
 
-  if [[ $rc -eq 0 && -f $raw ]]; then
+  if [[ $rc -eq 0 ]]; then
+    # scancode creates the output file on first write, so with no copyrights
+    # found there is no file at all: that is an empty result, not a failure
+    [[ -f $raw ]] || : > "$raw"
     sort -u "$raw" > "$final.tmp" && mv "$final.tmp" "$final" && rm -f "$raw"
     touch "$dest/.done"     # marks success even when no copyrights were found
     echo "  ok in ${elapsed}s, $(wc -l < "$final") unique lines"
