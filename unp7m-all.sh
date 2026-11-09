@@ -51,6 +51,11 @@ for file_p7m in *.p7m; do
         fi
     }
     
+    MIME_TYPE=$(file -b --mime-type "$nome_destinazione")
+    echo "Il file di destinazione è del tipo '$MIME_TYPE'"
+
+    if [[ $MIME_TYPE == ]]
+
 done
 
 echo "---------------------------------"
